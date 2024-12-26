@@ -37,3 +37,7 @@ out/
 .vscode/
 /.gradle/
 /.gradle/buildOutputCleanup/
+/gradlew
+/gradlew.bat
+/gradle/wrapper/gradle-wrapper.jar
+/gradle/wrapper/gradle-wrapper.properties
