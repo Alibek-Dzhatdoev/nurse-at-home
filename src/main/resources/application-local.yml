@@ -1,0 +1,32 @@
+eureka:
+  client:
+    enabled: false
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
+
+application:
+  security:
+    service-client:
+      id: service-client
+      secret: roL5TnZrTmA2bb1B
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/postgres?currentSchema=notification
+    username: postgres
+    password: postgres
+  jpa:
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+
+management:
+  tracing:
+    enabled: false
+    sampling:
+      probability: 1.0

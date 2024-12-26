@@ -1,0 +1,140 @@
+<configuration>
+  <springProperty scope="context" name="springAppName" source="spring.application.name"/>
+
+  <appender name="DEV" class="com.github.loki4j.logback.Loki4jAppender">
+    <http class="com.github.loki4j.logback.ApacheHttpSender">
+<!--      <url>https://ufdev.iwdev.ru/loki/api/v1/push</url>-->
+    </http>
+    <format>
+      <label>
+        <pattern>job=uf-dev/ldap-oauth,host=ufdev.iwdev.ru,level=%level</pattern>
+      </label>
+      <message>
+        <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [${springAppName:-}: %X{sessionId:-}, %X{traceId:-}, %X{spanId:-}] [%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg %n</pattern>
+      </message>
+      <sortByTime>true</sortByTime>
+    </format>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>TRACE</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+  </appender>
+
+  <appender name="QA" class="com.github.loki4j.logback.Loki4jAppender">
+    <http class="com.github.loki4j.logback.ApacheHttpSender">
+<!--      <url>https://ufqa.iwdev.ru/loki/api/v1/push</url>-->
+    </http>
+    <format>
+      <label>
+        <pattern>job=uf-qa/ldap-oauth,host=ufqa.iwdev.ru,level=%level</pattern>
+      </label>
+      <message>
+        <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [${springAppName:-}: %X{sessionId:-}, %X{traceId:-}, %X{spanId:-}] [%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg %n</pattern>
+      </message>
+      <sortByTime>true</sortByTime>
+    </format>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>TRACE</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+  </appender>
+
+  <appender name="STAGE" class="com.github.loki4j.logback.Loki4jAppender">
+    <http class="com.github.loki4j.logback.ApacheHttpSender">
+<!--      <url>https://ufstage.iwdev.ru/loki/api/v1/push</url>-->
+    </http>
+    <format>
+      <label>
+        <pattern>job=uf-stage/ldap-oauth,host=ufstage.iwdev.ru,level=%level</pattern>
+      </label>
+      <message>
+        <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [${springAppName:-}: %X{sessionId:-}, %X{traceId:-}, %X{spanId:-}] [%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg %n</pattern>
+      </message>
+      <sortByTime>true</sortByTime>
+    </format>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>TRACE</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+  </appender>
+
+  <appender name="PROD" class="com.github.loki4j.logback.Loki4jAppender">
+    <http class="com.github.loki4j.logback.ApacheHttpSender">
+<!--      <url>https://ufsprod.iwdev.ru/loki/api/v1/push</url>-->
+    </http>
+    <format>
+      <label>
+        <pattern>job=uf-prod/ldap-oauth,host=ufsprod.iwdev.ru,level=%level</pattern>
+      </label>
+      <message>
+        <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [${springAppName:-}: %X{sessionId:-}, %X{traceId:-}, %X{spanId:-}] [%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg %n</pattern>
+      </message>
+      <sortByTime>true</sortByTime>
+    </format>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>TRACE</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+  </appender>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <target>System.out</target>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>TRACE</level>
+      <onMatch>DENY</onMatch>
+    </filter>
+    <encoder>
+      <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [${springAppName:-}: %X{sessionId:-}, %X{traceId:-}, %X{spanId:-}] [%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg %n</pattern>
+    </encoder>
+  </appender>
+
+  <springProfile name="dev">
+    <root level="INFO, ERROR, WARN">
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="qa">
+    <root level="INFO, ERROR, WARN">
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="stage">
+    <root level="INFO, ERROR, WARN">
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="prod">
+    <root level="INFO, ERROR, WARN">
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="local">
+    <root level="INFO, ERROR, WARN">
+      <appender-ref ref="STDOUT"/>
+    </root>
+  </springProfile>
+</configuration>
