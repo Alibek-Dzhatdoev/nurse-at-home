@@ -9,15 +9,15 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE)
 public class AddressDto {
 
-    String city;            // Город
+    String city;
 
-    String street;          // Улица
+    String street;
 
-    String building;        // Номер дома
+    String building;
 
     int entrance;
 
-    int apartment;       // Номер квартиры
+    int apartment;
 
     boolean isPrimary;
 }

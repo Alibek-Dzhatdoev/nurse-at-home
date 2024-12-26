@@ -1,12 +1,14 @@
 package com.ali.nurse_at_home.controller.v1;
 
 import com.ali.nurse_at_home.aspect.CheckPermission;
+import com.ali.nurse_at_home.controller.v1.docs.PatientControllerDocs;
 import com.ali.nurse_at_home.model.dto.PatientExtendedDto;
 import com.ali.nurse_at_home.model.dto.PatientFullDto;
 import com.ali.nurse_at_home.model.dto.PatientThinDto;
 import com.ali.nurse_at_home.model.entity.Patient;
 import com.ali.nurse_at_home.model.params.PatientParams;
 import com.ali.nurse_at_home.service.PatientService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.kaczmarzyk.spring.data.jpa.domain.Equal;
@@ -22,37 +24,44 @@ import org.springframework.web.bind.annotation.*;
 import static com.ali.nurse_at_home.model.enums.Role.SERVICE;
 import static com.ali.nurse_at_home.model.enums.Role.SUPER_ADMIN;
 import static lombok.AccessLevel.PRIVATE;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/patients")
 @FieldDefaults(level = PRIVATE, makeFinal = true)
-public class PatientController {
+public class PatientController implements PatientControllerDocs {
 
     PatientService patientService;
 
+    @Override
     @PostMapping
     @CheckPermission(roles = {SUPER_ADMIN, SERVICE})
-    public ResponseEntity<PatientFullDto> createPatient(@RequestBody PatientParams params) {
-        return ok(patientService.create(params));
+    public ResponseEntity<PatientFullDto> createPatient(@RequestBody @Valid PatientParams params) {
+        return status(CREATED).body(patientService.create(params));
     }
 
+    @Override
     @GetMapping("/{id}/full")
     public ResponseEntity<PatientFullDto> getFullPatientById(@PathVariable long id) {
         return ok(patientService.getFullById(id));
     }
 
+    @Override
     @GetMapping("/me")
     public ResponseEntity<PatientFullDto> getFullPatientByToken() {
         return ok(patientService.getFullByToken());
     }
 
+    @Override
     @GetMapping("/{id}")
     public ResponseEntity<PatientExtendedDto> getExtendedPatientById(@PathVariable long id) {
         return ok(patientService.getExtendedById(id));
     }
 
+    @Override
     @GetMapping
     public ResponseEntity<Page<PatientThinDto>> getAllPatients(
             @And({
@@ -65,16 +74,17 @@ public class PatientController {
         return ok(patientService.getAll(patientSpec, pageable));
     }
 
+    @Override
     @PatchMapping("/{id}")
     public ResponseEntity<PatientFullDto> patchPatient(@PathVariable long id,
                                                        @RequestBody PatientParams params) {
         return ok(patientService.patchPatient(id, params));
     }
 
+    @Override
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePatient(@PathVariable long id) {
         patientService.deleteById(id);
         return ok().build();
     }
-
 }

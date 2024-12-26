@@ -14,15 +14,15 @@ public class PatientFullDto {
 
     Long id;
 
-    String email;  // Электронная почта
+    String email;
 
-    String firstName;  // Имя пациента
+    String firstName;
 
-    String lastName;   // Фамилия пациента
+    String lastName;
 
-    String phoneNumber;  // Номер телефона пациента
+    String mobilePhone;
 
-    LocalDate dateOfBirth;  // Дата рождения пациента (по желанию)
+    LocalDate dateOfBirth;
 
-    List<AddressDto> addresses;  // Адрес пациента (может быть несколько, но обычно один основной)
+    List<AddressDto> addresses;
 }

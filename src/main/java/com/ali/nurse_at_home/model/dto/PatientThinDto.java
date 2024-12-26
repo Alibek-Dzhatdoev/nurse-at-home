@@ -15,5 +15,5 @@ public class PatientThinDto {
 
     String lastName;   // Фамилия пациента
 
-    String phoneNumber;  // Номер телефона пациента
+    String mobilePhone;  // Номер телефона пациента
 }

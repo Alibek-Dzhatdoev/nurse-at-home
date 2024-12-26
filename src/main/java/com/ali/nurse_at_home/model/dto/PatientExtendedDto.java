@@ -17,7 +17,7 @@ public class PatientExtendedDto {
 
     String lastName;   // Фамилия пациента
 
-    String phoneNumber;  // Номер телефона пациента
+    String mobilePhone;  // Номер телефона пациента
 
     LocalDate dateOfBirth;  // Дата рождения пациента (по желанию)
 
