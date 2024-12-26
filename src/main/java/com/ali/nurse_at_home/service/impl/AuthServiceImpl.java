@@ -1,14 +1,13 @@
 package com.ali.nurse_at_home.service.impl;
 
-import com.ali.nurse_at_home.client.SsoClient;
+import com.ali.nurse_at_home.client.OauthClient;
+import com.ali.nurse_at_home.config.properties.ServiceClientProperties;
 import com.ali.nurse_at_home.model.request.TokenIntrospectRequest;
 import com.ali.nurse_at_home.model.response.TokenIntrospectResponse;
 import com.ali.nurse_at_home.service.AuthService;
 import com.ali.nurse_at_home.utils.SecurityContextUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -22,21 +21,13 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 public class AuthServiceImpl implements AuthService {
 
-    @NonFinal
-    @Value("${application.security.service-client.id}")
-    String serviceClientId;
-
-    @NonFinal
-    @Value("${application.security.service-client.secret}")
-    String serviceClientSecret;
-
-    SsoClient ssoClient;
-//    SsoLdapClient ssoLdapClient;
+    OauthClient oauthClient;
     SecurityContextUtils securityContextUtils;
+    ServiceClientProperties serviceClientProperties;
 
     @Override
-    public void introspectSSOServiceClientToken(String token) {
-        TokenIntrospectResponse introspectResponse = ssoClient.introspect(
+    public void introspectOauthServiceClientToken(String token) {
+        TokenIntrospectResponse introspectResponse = oauthClient.introspect(
                 new TokenIntrospectRequest(securityContextUtils.getAccessToken()), getServiceClientBasicAuthorization());
 
         if (!introspectResponse.isActive()) {
@@ -44,18 +35,8 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    @Override
-    public void introspectSsoLdapServiceClientToken(String token) {
-//        TokenIntrospectResponse introspectResponse = ssoLdapClient.introspect(
-//                new TokenIntrospectRequest(securityContextUtils.getAccessToken()), getServiceClientBasicAuthorization());
-//
-//        if (!introspectResponse.isActive()) {
-//            throw new ResponseStatusException(FORBIDDEN, "Invalid service-client SSO-LDAP token");
-//        }
-    }
-
     private String getServiceClientBasicAuthorization() {
-        byte[] basicAuth = format("%s:%s", serviceClientId, serviceClientSecret).getBytes();
+        byte[] basicAuth = format("%s:%s", serviceClientProperties.id(), serviceClientProperties.secret()).getBytes();
         return "Basic " + getEncoder().encodeToString(basicAuth);
     }
 }
