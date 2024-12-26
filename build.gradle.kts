@@ -33,7 +33,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-config:4.2.0")
     implementation("org.springframework.boot:spring-boot-starter-actuator:3.4.0")
     implementation("org.springframework.boot:spring-boot-starter-validation:3.4.0")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.4.0")
     implementation("org.springframework.boot:spring-boot-starter-web:3.4.0")
     implementation("org.springframework.boot:spring-boot-starter-aop:3.4.0")

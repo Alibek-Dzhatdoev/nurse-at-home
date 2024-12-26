@@ -1,12 +1,12 @@
 package com.ali.nurse_at_home.utils;
 
-import lombok.experimental.NonFinal;
+import com.ali.nurse_at_home.config.properties.ServiceClientProperties;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import lombok.val;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.ali.nurse_at_home.utils.RequestContextUtils.getHeaderValue;
 import static com.google.gson.JsonParser.parseString;
@@ -19,32 +19,38 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
-@Component
 public class SecurityContextUtils {
 
-    @NonFinal
-    @Value("${application.security.service-client.id}")
-    String serviceClientId;
+    static ServiceClientProperties serviceClientProperties;
 
-    public String getAccessToken() {
+    public static String getAccessToken() {
         return getHeaderValue(AUTHORIZATION).split(SPACE)[1];
     }
 
-    public boolean isServiceClient() {
+    public static boolean isServiceClient() {
         return getPropertyFromToken("aud")
-                .map(aud -> serviceClientId.equals(aud))
+                .map(aud -> serviceClientProperties.id().equals(aud))
                 .orElse(false);
     }
 
-    public String getAuthApplicationName() {
+    public static String getAuthApplicationName() {
         return getPropertyFromToken("appName")
                 .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Нет информации об имени сервиса"));
     }
 
-    public String getCurrentRole(){
+    public static UUID getUserIdFromToken() {
+        val token = getAccessToken();
+        val payload = new String(getUrlDecoder().decode(token.split("\\.")[1]), UTF_8);
+        return ofNullable(parseString(payload).getAsJsonObject().get("guid").getAsString())
+                .map(UUID::fromString)
+                .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Не удалось получить guid из JWT токена"));
+    }
+
+    public static String getCurrentRole(){
         return getPropertyFromToken("role")
                 .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Нет информации о роли пользователя"));
     }
+
     private static Optional<String> getPropertyFromToken(String property) {
         try {
             String token = getHeaderValue(AUTHORIZATION);

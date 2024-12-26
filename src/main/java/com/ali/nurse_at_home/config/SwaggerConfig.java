@@ -8,6 +8,9 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER;
+import static io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP;
+
 @Configuration
 public class SwaggerConfig {
 
@@ -17,16 +20,16 @@ public class SwaggerConfig {
                         addList("Bearer Authentication"))
                 .components(new Components().addSecuritySchemes
                         ("Bearer Authentication", createAPIKeyScheme()))
-                .info(new Info().title("Payment API")
-                        .description("Payment service")
+                .info(new Info().title("Nurse API")
+                        .description("NurseAtHome service")
                         .version("1.0.0"));
     }
 
     private SecurityScheme createAPIKeyScheme() {
         return new SecurityScheme()
                 .name("bearerAuth")
-                .type(SecurityScheme.Type.HTTP)
-                .in(SecurityScheme.In.HEADER)
+                .type(HTTP)
+                .in(HEADER)
                 .bearerFormat("JWT")
                 .scheme("bearer");
     }

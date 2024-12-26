@@ -1,7 +1,6 @@
 package com.ali.nurse_at_home.aspect;
 
 import com.ali.nurse_at_home.service.AuthService;
-import com.ali.nurse_at_home.utils.SecurityContextUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Arrays;
 
 import static com.ali.nurse_at_home.model.enums.Role.SUPER_ADMIN;
+import static com.ali.nurse_at_home.utils.SecurityContextUtils.getCurrentRole;
 import static java.lang.String.format;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -26,7 +26,6 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 public class CheckPermissionAspect {
 
     AuthService authService;
-    SecurityContextUtils securityContextUtils;
 
     @Before(value = "@annotation(checkPermission)")
     public void checkPermissionMethodLevel(final CheckPermission checkPermission) {
@@ -39,7 +38,7 @@ public class CheckPermissionAspect {
     }
 
     private void checkPermission(final CheckPermission checkPermission) {
-        val userRole = securityContextUtils.getCurrentRole();
+        val userRole = getCurrentRole();
 
         boolean hasPermission = Arrays.stream(checkPermission.roles())
                 .map(role -> role.description)

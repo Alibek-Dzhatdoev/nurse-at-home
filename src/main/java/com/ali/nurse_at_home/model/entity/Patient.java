@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
@@ -26,8 +27,10 @@ public class Patient {
     String email;  // Электронная почта
     String firstName;  // Имя пациента
     String lastName;   // Фамилия пациента
-    String phoneNumber;  // Номер телефона пациента
+    String mobilePhone;  // Номер телефона пациента
     LocalDate dateOfBirth;  // Дата рождения пациента (по желанию)
+
+    UUID userId;
 
     @OneToMany(mappedBy = "patient")
     List<PatientAddress> addresses = new ArrayList<>();  // Адрес пациента (может быть несколько, но обычно один основной)

@@ -5,6 +5,7 @@ import com.ali.nurse_at_home.mapper.PatientMapper;
 import com.ali.nurse_at_home.model.dto.PatientExtendedDto;
 import com.ali.nurse_at_home.model.dto.PatientFullDto;
 import com.ali.nurse_at_home.model.dto.PatientThinDto;
+import com.ali.nurse_at_home.model.entity.Patient;
 import com.ali.nurse_at_home.model.entity.PatientAddress;
 import com.ali.nurse_at_home.model.entity.address.City;
 import com.ali.nurse_at_home.model.entity.address.Street;
@@ -19,11 +20,13 @@ import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import static com.ali.nurse_at_home.utils.SecurityContextUtils.getUserIdFromToken;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -40,10 +43,13 @@ public class PatientServiceImpl implements PatientService {
     PatientRepository patientRepository;
     PatientAddressRepository patientAddressRepository;
 
+    //TODO не уверен, нужно ли тут возвращать модель пациента (возможно будет дергаться из Oauth)
     @Override
     @Transactional
     public PatientFullDto create(PatientParams params) {
+        val userid = getUserIdFromToken();
         val patient = patientMapper.toPatient(params);
+        patient.setUserId(userid);
         val newPatientId = patientRepository.save(patient).getId();
         val cityAndStreet = checkAddress(params);
         val address = addressMapper.toAddress(params.getAddress());
@@ -63,6 +69,13 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    public PatientFullDto getFullByToken() {
+        return patientRepository.findByUserId(getUserIdFromToken())
+                .map(patientMapper::toFullDto)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Не удалось найти пациента"));
+    }
+
+    @Override
     public PatientExtendedDto getExtendedById(long id) {
         return patientRepository.findById(id)
                 .map(patientMapper::toExtendedDto)
@@ -70,8 +83,9 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public Page<PatientThinDto> getAll(Pageable pageable) {
-        return patientRepository.findAll(pageable)
+    public Page<PatientThinDto> getAll(Specification<Patient> patientSpec,
+                                       Pageable pageable) {
+        return patientRepository.findAll(patientSpec, pageable)
                 .map(patientMapper::toThinDto);
     }
 

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 public enum Role {
 
     PATIENT("patient"),
+    SERVICE("service"),
     SUPER_ADMIN("super_admin"),
     NURSE("nurse");
 
