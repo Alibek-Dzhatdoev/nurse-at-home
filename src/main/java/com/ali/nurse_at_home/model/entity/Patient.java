@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -24,20 +25,21 @@ public class Patient {
     @GeneratedValue(strategy = IDENTITY)
     Long id;
 
-    String email;  // Электронная почта
-    String firstName;  // Имя пациента
-    String lastName;   // Фамилия пациента
-    String mobilePhone;  // Номер телефона пациента
-    LocalDate dateOfBirth;  // Дата рождения пациента (по желанию)
+    String email;
+    String firstName;
+    String lastName;
+    String mobilePhone;
+    LocalDate dateOfBirth;
 
     UUID userId;
+    Boolean isActive;
 
-    @OneToMany(mappedBy = "patient")
-    List<PatientAddress> addresses = new ArrayList<>();  // Адрес пациента (может быть несколько, но обычно один основной)
-
-    @OneToMany(mappedBy = "patientId")
-    List<Bid> bids = new ArrayList<>();  // Список заявок пациента
+    @OneToMany(mappedBy = "patient", cascade = ALL)
+    List<PatientAddress> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "patientId")
-    List<Review> reviews = new ArrayList<>();  // Отзывы о медсестре (если есть)
+    List<Bid> bids = new ArrayList<>();
+
+    @OneToMany(mappedBy = "patientId")
+    List<Review> reviews = new ArrayList<>();
 }

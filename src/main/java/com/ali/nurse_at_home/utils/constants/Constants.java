@@ -7,7 +7,8 @@ public class Constants {
                 "firstName" : "Анна",
                 "lastName" : "Кузнецова",
                 "mobilePhone" : "9094957899",
-                "email" : "user@gmail.com"
+                "email" : "user@gmail.com",
+                "isActive" : "true"
             }
             """;
 }

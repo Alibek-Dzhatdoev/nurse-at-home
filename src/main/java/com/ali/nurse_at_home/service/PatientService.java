@@ -5,6 +5,7 @@ import com.ali.nurse_at_home.model.dto.PatientFullDto;
 import com.ali.nurse_at_home.model.dto.PatientThinDto;
 import com.ali.nurse_at_home.model.entity.Patient;
 import com.ali.nurse_at_home.model.params.PatientParams;
+import com.ali.nurse_at_home.model.params.PatientUpdateParams;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,7 +22,7 @@ public interface PatientService {
 
     Page<PatientThinDto> getAll(Specification<Patient> patientSpec, Pageable pageable);
 
-    PatientFullDto patchPatient(long id, PatientParams params);
+    PatientFullDto patchPatient(long id, PatientUpdateParams params);
 
     void deleteById(long id);
 }

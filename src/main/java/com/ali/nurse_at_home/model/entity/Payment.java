@@ -25,7 +25,7 @@ public class Payment {
 
     Long patientId;  // Пациент, который заплатил
 
-    @ManyToOne
+    @OneToOne
     Bid bid;  // Заявка, за которую был совершен платеж
 
     Double amount;  // Сумма платежа

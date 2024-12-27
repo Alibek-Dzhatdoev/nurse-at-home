@@ -22,4 +22,6 @@ public class PatientExtendedDto {
     LocalDate dateOfBirth;  // Дата рождения пациента (по желанию)
 
     AddressDto address;  // Адрес пациента (может быть несколько, но обычно один основной)
+
+    Boolean isActive;
 }

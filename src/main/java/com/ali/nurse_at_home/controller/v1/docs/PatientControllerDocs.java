@@ -5,6 +5,7 @@ import com.ali.nurse_at_home.model.dto.PatientFullDto;
 import com.ali.nurse_at_home.model.dto.PatientThinDto;
 import com.ali.nurse_at_home.model.entity.Patient;
 import com.ali.nurse_at_home.model.params.PatientParams;
+import com.ali.nurse_at_home.model.params.PatientUpdateParams;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -81,7 +82,7 @@ public interface PatientControllerDocs {
                     schema = @Schema(implementation = PatientFullDto.class)
             ))
     ResponseEntity<PatientFullDto> patchPatient(@Parameter(description = "ID пациента", example = "1") long id,
-                                                @RequestBody PatientParams params);
+                                                @RequestBody PatientUpdateParams params);
 
     //TODO возможно, стоит не удалять запись из БД, а просто пометить пациента как неактивного
     @Operation(summary = "Удалить пациента",

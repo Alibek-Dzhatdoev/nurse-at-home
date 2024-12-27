@@ -31,7 +31,7 @@ public class Bid {
     Long nurseId;  // Медсестра, которая может принять заявку (может быть null, до принятия)
 
     @ManyToMany
-    List<Service> services;  // Услуга, которую хочет получить пациент
+    List<Service> services;  // Услуги, которые хочет получить пациент
 
     @CreationTimestamp
     LocalDateTime requestedTime;  // Время запроса (когда пациент подал заявку)

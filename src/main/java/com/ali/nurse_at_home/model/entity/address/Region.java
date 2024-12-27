@@ -13,9 +13,9 @@ import static lombok.AccessLevel.PRIVATE;
 @Entity
 @Getter
 @Setter
-@Table(name = "cities")
+@Table(name = "regions")
 @FieldDefaults(level = PRIVATE)
-public class City {
+public class Region {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -23,8 +23,6 @@ public class City {
 
     String name;
 
-    Long regionId;
-
     @OneToMany
-    List<Street> streets;
+    List<City> streets;
 }

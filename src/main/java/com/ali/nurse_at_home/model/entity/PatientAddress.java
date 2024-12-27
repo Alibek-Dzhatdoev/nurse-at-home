@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -14,7 +15,7 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "patients_adresses")
+@Table(name = "patients_addresses")
 @FieldDefaults(level = PRIVATE)
 public class PatientAddress {
 
@@ -25,7 +26,7 @@ public class PatientAddress {
     @ManyToOne
     Patient patient;
 
-    @ManyToOne
+    @ManyToOne(cascade = PERSIST)
     Address address;
 
     boolean isPrimary;

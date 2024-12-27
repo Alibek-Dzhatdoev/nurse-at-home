@@ -1,12 +1,12 @@
 package com.ali.nurse_at_home.controller.v1;
 
-import com.ali.nurse_at_home.aspect.CheckPermission;
 import com.ali.nurse_at_home.controller.v1.docs.PatientControllerDocs;
 import com.ali.nurse_at_home.model.dto.PatientExtendedDto;
 import com.ali.nurse_at_home.model.dto.PatientFullDto;
 import com.ali.nurse_at_home.model.dto.PatientThinDto;
 import com.ali.nurse_at_home.model.entity.Patient;
 import com.ali.nurse_at_home.model.params.PatientParams;
+import com.ali.nurse_at_home.model.params.PatientUpdateParams;
 import com.ali.nurse_at_home.service.PatientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +21,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static com.ali.nurse_at_home.model.enums.Role.SERVICE;
-import static com.ali.nurse_at_home.model.enums.Role.SUPER_ADMIN;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.ResponseEntity.ok;
@@ -38,7 +36,7 @@ public class PatientController implements PatientControllerDocs {
 
     @Override
     @PostMapping
-    @CheckPermission(roles = {SUPER_ADMIN, SERVICE})
+//    @CheckPermission(roles = {SUPER_ADMIN, SERVICE})
     public ResponseEntity<PatientFullDto> createPatient(@RequestBody @Valid PatientParams params) {
         return status(CREATED).body(patientService.create(params));
     }
@@ -69,6 +67,7 @@ public class PatientController implements PatientControllerDocs {
                     @Spec(path = "firstName", params = "firstName", spec = LikeIgnoreCase.class),
                     @Spec(path = "lastName", params = "lastName", spec = LikeIgnoreCase.class),
                     @Spec(path = "email", params = "email", spec = LikeIgnoreCase.class),
+                    @Spec(path = "isActive", params = "isActive", spec = Equal.class),
             }) Specification<Patient> patientSpec,
             Pageable pageable) {
         return ok(patientService.getAll(patientSpec, pageable));
@@ -77,7 +76,7 @@ public class PatientController implements PatientControllerDocs {
     @Override
     @PatchMapping("/{id}")
     public ResponseEntity<PatientFullDto> patchPatient(@PathVariable long id,
-                                                       @RequestBody PatientParams params) {
+                                                       @RequestBody PatientUpdateParams params) {
         return ok(patientService.patchPatient(id, params));
     }
 

@@ -11,7 +11,7 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @Setter
 @Entity
-@Table(name = "adreesses")
+@Table(name = "addresses")
 @FieldDefaults(level = PRIVATE)
 public class Address {
 
@@ -20,13 +20,13 @@ public class Address {
     Long id;
 
     @ManyToOne
-    Street street;          // Улица
+    com.ali.nurse_at_home.model.entity.address.Street street;
 
     @ManyToOne
-    City city;            // Город
+    com.ali.nurse_at_home.model.entity.address.City city;
 
-    String building;        // Номер дома
-    int apartment;       // Номер квартиры
+    String building;
+    int apartment;
     int entrance;
 
     Double latitude;        // Географическая широта (для карт и навигации)

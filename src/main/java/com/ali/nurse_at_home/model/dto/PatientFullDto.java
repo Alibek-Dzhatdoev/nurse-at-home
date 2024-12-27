@@ -24,5 +24,7 @@ public class PatientFullDto {
 
     LocalDate dateOfBirth;
 
+    Boolean isActive;
+
     List<AddressDto> addresses;
 }

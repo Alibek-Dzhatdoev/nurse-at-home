@@ -17,11 +17,12 @@ application:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/postgres?currentSchema=notification
+    url: jdbc:postgresql://localhost:5433/postgres?currentSchema=nurse_at_home
     username: postgres
     password: postgres
   jpa:
     open-in-view: false
+    show-sql: true
   flyway:
     locations: classpath:db/migration
 
