@@ -1,11 +1,11 @@
 package com.ali.nurse_at_home.controller.v1.docs;
 
-import com.ali.nurse_at_home.model.dto.PatientExtendedDto;
-import com.ali.nurse_at_home.model.dto.PatientFullDto;
-import com.ali.nurse_at_home.model.dto.PatientThinDto;
+import com.ali.nurse_at_home.model.dto.patient.PatientExtendedDto;
+import com.ali.nurse_at_home.model.dto.patient.PatientFullDto;
+import com.ali.nurse_at_home.model.dto.patient.PatientThinDto;
 import com.ali.nurse_at_home.model.entity.Patient;
 import com.ali.nurse_at_home.model.params.PatientParams;
-import com.ali.nurse_at_home.model.params.PatientUpdateParams;
+import com.ali.nurse_at_home.model.params.update.PatientUpdateParams;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

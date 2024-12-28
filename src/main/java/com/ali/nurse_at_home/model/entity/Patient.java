@@ -26,8 +26,8 @@ public class Patient {
     Long id;
 
     String email;
-    String firstName;
-    String lastName;
+    String firstname;
+    String lastname;
     String mobilePhone;
     LocalDate dateOfBirth;
 
@@ -41,5 +41,5 @@ public class Patient {
     List<Bid> bids = new ArrayList<>();
 
     @OneToMany(mappedBy = "patientId")
-    List<Review> reviews = new ArrayList<>();
+    List<NursePatientBlacklist> blackList;
 }

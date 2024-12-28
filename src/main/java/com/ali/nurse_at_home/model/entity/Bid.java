@@ -2,12 +2,14 @@ package com.ali.nurse_at_home.model.entity;
 
 import com.ali.nurse_at_home.model.entity.address.Address;
 import com.ali.nurse_at_home.model.enums.BidStatus;
+import com.ali.nurse_at_home.model.enums.TimeIntervals;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,16 +33,21 @@ public class Bid {
     Long nurseId;  // Медсестра, которая может принять заявку (может быть null, до принятия)
 
     @ManyToMany
-    List<Service> services;  // Услуги, которые хочет получить пациент
+    List<Procedure> procedures;
 
     @CreationTimestamp
-    LocalDateTime requestedTime;  // Время запроса (когда пациент подал заявку)
-
-    LocalDateTime scheduledTime;  // Время, когда медсестра должна выполнить услугу
+    LocalDateTime requestedTime;
 
     @Enumerated(STRING)
-    BidStatus status;  // Статус заявки (например, "Ожидает", "В процессе", "Завершена", "Отклонена")
+    TimeIntervals scheduledTime;  // Время, когда медсестра должна выполнить процедуру
+
+    LocalDate scheduledDate;      // Дата, когда медсестра должна выполнить процедуру
+
+    @Enumerated(STRING)
+    BidStatus status;
 
     @ManyToOne
-    Address address;  // Адрес оказания услуги
+    Address address;
+
+    Long reviewId;
 }

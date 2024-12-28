@@ -29,7 +29,7 @@ public class PatientAddress {
     @ManyToOne(cascade = PERSIST)
     Address address;
 
-    boolean isPrimary;
+    Boolean isPrimary;
 
     public PatientAddress(Patient patient, Address address, boolean isPrimary) {
         this.patient = patient;

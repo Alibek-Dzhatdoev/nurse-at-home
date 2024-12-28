@@ -10,4 +10,9 @@ import static lombok.AccessLevel.PRIVATE;
 @RequestMapping("/api/v1/reviews")
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 public class ReviewController {
+
+    //получить страницу отзывов на медсестру (для пациента. пагинация и сортировка)
+    //оставить отзыв на полученную услугу (для пациентов)
+    //удалить свой отзыв
+
 }

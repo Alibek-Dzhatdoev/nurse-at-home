@@ -1,12 +1,12 @@
 package com.ali.nurse_at_home.controller.v1;
 
 import com.ali.nurse_at_home.controller.v1.docs.PatientControllerDocs;
-import com.ali.nurse_at_home.model.dto.PatientExtendedDto;
-import com.ali.nurse_at_home.model.dto.PatientFullDto;
-import com.ali.nurse_at_home.model.dto.PatientThinDto;
+import com.ali.nurse_at_home.model.dto.patient.PatientExtendedDto;
+import com.ali.nurse_at_home.model.dto.patient.PatientFullDto;
+import com.ali.nurse_at_home.model.dto.patient.PatientThinDto;
 import com.ali.nurse_at_home.model.entity.Patient;
 import com.ali.nurse_at_home.model.params.PatientParams;
-import com.ali.nurse_at_home.model.params.PatientUpdateParams;
+import com.ali.nurse_at_home.model.params.update.PatientUpdateParams;
 import com.ali.nurse_at_home.service.PatientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,29 +43,33 @@ public class PatientController implements PatientControllerDocs {
 
     @Override
     @GetMapping("/{id}/full")
+//    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
     public ResponseEntity<PatientFullDto> getFullPatientById(@PathVariable long id) {
         return ok(patientService.getFullById(id));
     }
 
     @Override
-    @GetMapping("/me")
+    @GetMapping("/my-account")
+//    @CheckPermission(roles = {PATIENT})
     public ResponseEntity<PatientFullDto> getFullPatientByToken() {
         return ok(patientService.getFullByToken());
     }
 
     @Override
     @GetMapping("/{id}")
+//    @CheckPermission(roles = {SUPER_ADMIN, NURSE})
     public ResponseEntity<PatientExtendedDto> getExtendedPatientById(@PathVariable long id) {
         return ok(patientService.getExtendedById(id));
     }
 
     @Override
     @GetMapping
+//    @CheckPermission(roles = {SUPER_ADMIN})
     public ResponseEntity<Page<PatientThinDto>> getAllPatients(
             @And({
                     @Spec(path = "mobilePhone", params = "mobilePhone", spec = Equal.class),
-                    @Spec(path = "firstName", params = "firstName", spec = LikeIgnoreCase.class),
-                    @Spec(path = "lastName", params = "lastName", spec = LikeIgnoreCase.class),
+                    @Spec(path = "firstname", params = "firstname", spec = LikeIgnoreCase.class),
+                    @Spec(path = "lastname", params = "lastname", spec = LikeIgnoreCase.class),
                     @Spec(path = "email", params = "email", spec = LikeIgnoreCase.class),
                     @Spec(path = "isActive", params = "isActive", spec = Equal.class),
             }) Specification<Patient> patientSpec,
@@ -75,6 +79,7 @@ public class PatientController implements PatientControllerDocs {
 
     @Override
     @PatchMapping("/{id}")
+//    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
     public ResponseEntity<PatientFullDto> patchPatient(@PathVariable long id,
                                                        @RequestBody PatientUpdateParams params) {
         return ok(patientService.patchPatient(id, params));
@@ -82,8 +87,32 @@ public class PatientController implements PatientControllerDocs {
 
     @Override
     @DeleteMapping("/{id}")
+//    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
     public ResponseEntity<Void> deletePatient(@PathVariable long id) {
         patientService.deleteById(id);
         return ok().build();
     }
+
+    //Получить черный список пациентов (для медсестры)
+//    @CheckPermission(roles = {NURSE})
+    @GetMapping("/blacklist")
+    public ResponseEntity<Page<PatientThinDto>> getBlacklist() {
+        return ok(patientService.getBlackList());
+    }
+
+    //Добавить пациента в черный список (для медсестры)
+//    @CheckPermission(roles = {NURSE})
+    @PostMapping("/{id}/blacklist")
+    public ResponseEntity<Page<PatientThinDto>> addToBlacklist(@PathVariable long id) {
+        patientService.addToBlacklist(id);
+        return ok().build();
+    }
+
+    //Удалить пациента из черный список (для медсестры)
+//    @CheckPermission(roles = {NURSE})
+    @DeleteMapping("/{id}/blacklist")
+    public ResponseEntity<Page<PatientThinDto>> removeFromBlacklist(@PathVariable long id) {
+        return ok(patientService.removeFromBlacklist(id));
+    }
+
 }

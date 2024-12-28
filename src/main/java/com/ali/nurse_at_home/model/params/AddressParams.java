@@ -24,9 +24,9 @@ public class AddressParams {
     @NotNull(message = "Укажите номер дома")
     String building;
 
-    @Schema(description = "Номер подъезда", example = "1")
+    @Schema(description = "Номер подъезда (необязательно)", example = "1")
     int entrance;
 
-    @Schema(description = "Номер квартиры", example = "21")
+    @Schema(description = "Номер квартиры (необязательно)", example = "21")
     int apartment;
 }

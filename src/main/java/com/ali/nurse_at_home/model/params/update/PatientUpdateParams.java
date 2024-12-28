@@ -1,5 +1,6 @@
-package com.ali.nurse_at_home.model.params;
+package com.ali.nurse_at_home.model.params.update;
 
+import com.ali.nurse_at_home.model.params.AddressParams;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
@@ -19,11 +20,11 @@ public class PatientUpdateParams {
 
     @Schema(description = "Имя пациента", example = "Валерия")
     @Size(min = 2, max = 15, message = "Имя должно быть от 2 до 15 символов")
-    String firstName;
+    String firstname;
 
     @Schema(description = "Фамилия пациента", example = "Кузнецова")
     @Size(min = 2, max = 20, message = "Фамилия должна быть от 2 до 20 символов")
-    String lastName;
+    String lastname;
 
     @Schema(description = "Номер телефона", example = "9094957899")
     @Pattern(regexp = "^9\\d{9}$", message = "Номер телефона не соответствует шаблону")

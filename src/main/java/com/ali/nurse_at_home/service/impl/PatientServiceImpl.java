@@ -1,18 +1,17 @@
 package com.ali.nurse_at_home.service.impl;
 
+import com.ali.nurse_at_home.mapper.AddressMapper;
 import com.ali.nurse_at_home.mapper.PatientMapper;
-import com.ali.nurse_at_home.model.dto.PatientExtendedDto;
-import com.ali.nurse_at_home.model.dto.PatientFullDto;
-import com.ali.nurse_at_home.model.dto.PatientThinDto;
+import com.ali.nurse_at_home.model.dto.patient.PatientExtendedDto;
+import com.ali.nurse_at_home.model.dto.patient.PatientFullDto;
+import com.ali.nurse_at_home.model.dto.patient.PatientThinDto;
 import com.ali.nurse_at_home.model.entity.Patient;
 import com.ali.nurse_at_home.model.entity.PatientAddress;
-import com.ali.nurse_at_home.model.entity.address.Address;
 import com.ali.nurse_at_home.model.params.PatientParams;
-import com.ali.nurse_at_home.model.params.PatientUpdateParams;
-import com.ali.nurse_at_home.repository.CityRepository;
+import com.ali.nurse_at_home.model.params.update.PatientUpdateParams;
 import com.ali.nurse_at_home.repository.PatientAddressRepository;
 import com.ali.nurse_at_home.repository.PatientRepository;
-import com.ali.nurse_at_home.repository.StreetRepository;
+import com.ali.nurse_at_home.service.AddressService;
 import com.ali.nurse_at_home.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,10 +24,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import static com.ali.nurse_at_home.utils.SecurityContextUtils.getUserIdFromToken;
+import static java.util.List.of;
 import static java.util.Objects.isNull;
 import static lombok.AccessLevel.PRIVATE;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
 
 @Service
 @RequiredArgsConstructor
@@ -36,22 +36,20 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class PatientServiceImpl implements PatientService {
 
     PatientMapper patientMapper;
+    AddressMapper addressMapper;
 
-    CityRepository cityRepository;
-    StreetRepository streetRepository;
+    AddressService addressService;
     PatientRepository patientRepository;
     PatientAddressRepository patientAddressRepository;
 
     //TODO не уверен, нужно ли тут возвращать модель пациента (возможно будет дергаться из Oauth)
     @Override
+    @Transactional
     public PatientFullDto create(PatientParams params) {
         val patient = patientMapper.toPatient(params, getUserIdFromToken());
-        val newPatientId = patientRepository.save(patient).getId();
-        val address = checkAddressAndReturn(params);
-        patientAddressRepository.save(new PatientAddress(patient, address, true));
-        return patientRepository.findByIdFetchAddresses(newPatientId)
-                .map(patientMapper::toFullDto)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Не удалось создать пациента"));
+        val address = addressService.checkAddressAndReturn(params.getAddress());
+        patient.setAddresses(of(new PatientAddress(patient, address, true)));
+        return patientMapper.toFullDto(patientRepository.save(patient));
     }
 
     @Override
@@ -75,8 +73,8 @@ public class PatientServiceImpl implements PatientService {
         return patientRepository.findByIdFetchAddresses(id)
                 .map(patient -> {
                     val dto = patientMapper.toExtendedDto(patient);
-                    dto.setAddress(patientMapper.addressToDto(patient.getAddresses().stream()
-                            .filter(PatientAddress::isPrimary).findAny().orElse(null)));
+                    dto.setAddress(addressMapper.toDto(patient.getAddresses().stream()
+                            .filter(PatientAddress::getIsPrimary).findAny().orElse(null)));
                     return dto;
                 })
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Не удалось найти пациента"));
@@ -89,46 +87,60 @@ public class PatientServiceImpl implements PatientService {
                 .map(patientMapper::toThinDto);
     }
 
-    //TODO
     @Override
     @Transactional
     public PatientFullDto patchPatient(long id, PatientUpdateParams params) {
-        //обновить инфу о пациенте
-        // и если новый адрес указан, то старый становится не основным а этот основным
         return patientRepository.findById(id)
-                .map(patient -> {
-                    val updated = patientMapper.updatePatient(patient, params);
-                    if(!isNull(params.getAddress())) {
-                        updated.getAddresses().stream()
-                                .filter(PatientAddress::isPrimary)
-                                .findFirst()
-                                .ifPresent(add -> add.setPrimary(false));
-                        updated.getAddresses().add(new PatientAddress(patient, checkAddressAndReturn(params), true));
-                    }
-                    return patientMapper.toFullDto(patient);
-                })
+                .map(patient -> patientMapper.updatePatient(patient, params))
+                .map(patient -> patientMapper.toFullDto(updateAddressIfNeed(params, patient)))
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Пациент не найден"));
+    }
+
+    private Patient updateAddressIfNeed(PatientUpdateParams params, Patient patient) {
+        if (!isNull(params.getAddress())) {
+            patient.getAddresses().stream()
+                    .filter(PatientAddress::getIsPrimary)
+                    .findFirst()
+                    .ifPresent(address -> address.setIsPrimary(false));
+            val address = addressService.checkAddressAndReturn(params.getAddress());
+            val patientAddress = patientAddressRepository
+                    .findByPatientIdAndAddressId(patient.getId(), address.getId())
+                    .map(addr -> {
+                        addr.setIsPrimary(true);
+                        return addr;
+                    })
+                    .orElse(patientAddressRepository.save(new PatientAddress(patient, address, true)));
+            patient.getAddresses().add(patientAddress);
+            patientRepository.save(patient);
+        }
+        return patient;
     }
 
     @Override
     public void deleteById(long id) {
-        patientRepository.deleteById(id);
+        patientRepository.findById(id)
+                .map(patient -> {
+                    patient.setIsActive(false);
+                    return patient;
+                })
+                .map(patientRepository::save);
     }
 
-    private Address checkAddressAndReturn(PatientUpdateParams params) {
-        val city = cityRepository.findById(params.getAddress().getCityId())
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Неверный ID города"));
+    //TODO
+    @Override
+    public Page<PatientThinDto> getBlackList() {
+        throw new ResponseStatusException(NOT_IMPLEMENTED);
+    }
 
-//        val street = streetRepository.findById(params.getAddress().getStreetId())
-        val street = streetRepository.findById(1L)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Неверный ID улицы"));
+    //TODO
+    @Override
+    public void addToBlacklist(long id) {
+        throw new ResponseStatusException(NOT_IMPLEMENTED);
+    }
 
-        street.setCityId(city.getId()); //TODO удалить как только БД с улицами будет
-
-        if (!street.getCityId().equals(city.getId())) {
-            throw new ResponseStatusException(BAD_REQUEST, "Улица с этим ID не находится в указанном городе");
-        }
-
-        return patientMapper.paramstoAddress(params.getAddress(), city, street);
+    //TODO
+    @Override
+    public Page<PatientThinDto> removeFromBlacklist(long id) {
+        throw new ResponseStatusException(NOT_IMPLEMENTED);
     }
 }

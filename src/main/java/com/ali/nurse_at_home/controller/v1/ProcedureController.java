@@ -9,7 +9,8 @@ import static lombok.AccessLevel.PRIVATE;
 @RestController
 @RequestMapping("/api/v1/services")
 @FieldDefaults(level = PRIVATE, makeFinal = true)
-public class ServiceController {
+//@CheckPermission(roles = {SUPER_ADMIN})
+public class ProcedureController {
 
     //добавить услугу
     //удалить услугу

@@ -20,14 +20,16 @@ public class Address {
     Long id;
 
     @ManyToOne
-    com.ali.nurse_at_home.model.entity.address.Street street;
+    Street street;
 
     @ManyToOne
-    com.ali.nurse_at_home.model.entity.address.City city;
+    City city;
 
     String building;
-    int apartment;
     int entrance;
+    int apartment;
+
+    int timezone;
 
     Double latitude;        // Географическая широта (для карт и навигации)
     Double longitude;

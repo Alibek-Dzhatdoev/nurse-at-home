@@ -1,9 +1,6 @@
 package com.ali.nurse_at_home.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
@@ -14,9 +11,9 @@ import static lombok.AccessLevel.PRIVATE;
 @Entity
 @Getter
 @Setter
-@Table(name = "services")
+@Table(name = "procedures")
 @FieldDefaults(level = PRIVATE)
-public class Service {
+public class Procedure {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -25,6 +22,8 @@ public class Service {
     Double price;
 
     String name;
+
+    String description;
 
     String imageUrl;
 }
