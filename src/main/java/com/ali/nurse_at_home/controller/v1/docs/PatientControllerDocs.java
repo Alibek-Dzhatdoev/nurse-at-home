@@ -30,16 +30,16 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
 public interface PatientControllerDocs {
 
-    @Operation(summary = "Создание пациента",
+    @Operation(summary = "Создание пациента (для пациента)",
             description = "Метод создания нового пациента")
     @ApiResponse(responseCode = "201", description = "Success",
             content = @Content(
                     mediaType = APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = PatientFullDto.class)))
-    ResponseEntity<?> createPatient(@RequestBody PatientParams params);
+    ResponseEntity<PatientFullDto> createPatient(@RequestBody PatientParams params);
 
 //    @Hidden
-    @Operation(summary = "Получить пациента по id (полная информация)",
+    @Operation(summary = "Получить полную информацию пациента по id (для администратора или внутренней логики)",
             description = "Метод для получения полной информации о пациенте (предназначен для администратора или внутренней логики)")
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
@@ -47,7 +47,7 @@ public interface PatientControllerDocs {
                     schema = @Schema(implementation = PatientFullDto.class)))
     ResponseEntity<PatientFullDto> getFullPatientById(@Parameter(description = "ID пациента", example = "1") long id);
 
-    @Operation(summary = "Получить пациента по токену (полная информация)",
+    @Operation(summary = "Получить полную информацию пациента по токену (для пациента)",
             description = "Метод для получения полной информации о пациенте (предназначен для пациента)")
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
@@ -56,7 +56,7 @@ public interface PatientControllerDocs {
     ResponseEntity<PatientFullDto> getFullPatientByToken();
 
     @Operation(
-            summary = "Получить расширенную информацию о пациенте",
+            summary = "Получить расширенную информацию о пациенте (для медсестры)",
             description = "Метод для получения подробной информации о пациенте (предназначен для медсестер)")
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
@@ -69,25 +69,45 @@ public interface PatientControllerDocs {
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
                     mediaType = APPLICATION_JSON_VALUE,
-                    array = @ArraySchema(schema = @Schema(implementation = PatientFullDto.class))))
+                    array = @ArraySchema(schema = @Schema(implementation = PatientThinDto.class))))
     ResponseEntity<Page<PatientThinDto>> getAllPatients(@Parameter(description = "Спецификация для фильтрации пациентов", example = PATIENT_SPEC_EXAMPLE)
                                                         Specification<Patient> patientSpec,
                                                         @ParameterObject Pageable pageable);
 
-    @Operation(summary = "Обновить информацию о пациенте",
+    @Operation(summary = "Обновить информацию о пациенте (для пациента)",
             description = "Метод для обновления информации о пациенте (предназначен для пациентов)")
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
                     mediaType = APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = PatientFullDto.class)
-            ))
+                    schema = @Schema(implementation = PatientFullDto.class)))
     ResponseEntity<PatientFullDto> patchPatient(@Parameter(description = "ID пациента", example = "1") long id,
                                                 @RequestBody PatientUpdateParams params);
 
-    //TODO возможно, стоит не удалять запись из БД, а просто пометить пациента как неактивного
-    @Operation(summary = "Удалить пациента",
-            description = "Метод для удаления пациента")
+    @Operation(summary = "Удалить пациента (но оставить запись в БД)",
+            description = "Метод помечает пациента как неактивного")
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content)
     ResponseEntity<Void> deletePatient(@Parameter(description = "ID пациента", example = "1") long id);
+
+    @Operation(summary = "Получить черный список пациентов (для медсестры)",
+            description = "Метод для получения черного списка пациентов")
+    @ApiResponse(responseCode = "200", description = "Success",
+            content = @Content(
+                    mediaType = APPLICATION_JSON_VALUE,
+                    array = @ArraySchema(schema = @Schema(implementation = PatientThinDto.class))))
+    ResponseEntity<Page<PatientThinDto>> getBlacklist(@ParameterObject Pageable pageable);
+
+    @Operation(summary = "Добавить пациента в черный список (для медсестры)",
+            description = "Метод для добавления пациента в черный список, чтобы не видеть заявки от него")
+    @ApiResponse(responseCode = "200", description = "Success", content = @Content)
+    ResponseEntity<Void> addToBlacklist(@Parameter(description = "ID пациента", example = "1") long id);
+
+    @Operation(summary = "Удалить пациента из черного списка (для медсестры)",
+            description = "Метод для удаления пациента из ЧС, чтобы снова видеть его заявки")
+    @ApiResponse(responseCode = "200", description = "Success",
+            content = @Content(
+                    mediaType = APPLICATION_JSON_VALUE,
+                    array = @ArraySchema(schema = @Schema(implementation = PatientThinDto.class))))
+    ResponseEntity<Page<PatientThinDto>> removeFromBlacklist(@Parameter(description = "ID пациента", example = "1") long id,
+                                                             @ParameterObject Pageable pageable);
 }

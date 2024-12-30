@@ -103,11 +103,27 @@ create table bids
     address_id     bigint references addresses (id)
 );
 
-CREATE INDEX nurse_bids_index
+CREATE INDEX nurse_bid_status_index
     ON bids (nurse_id, status);
+
+CREATE INDEX nurse_bids_index
+    ON bids (nurse_id);
 
 CREATE INDEX patient_bids_index
     ON bids (patient_id, status);
+
+drop table if exists reviews;
+create table reviews
+(
+    id        bigserial primary key,
+    bid_id bigint references bids (id) not null,
+    text      text,
+    rate      int                         not null,
+    date      date                        not null
+);
+
+CREATE INDEX bids_review_index
+    ON reviews (bid_id);
 
 drop table if exists procedures;
 create table procedures
@@ -116,7 +132,8 @@ create table procedures
     name        varchar          not null,
     description varchar          not null,
     price       double precision not null,
-    image_url   varchar
+    image_url   varchar,
+    is_active   boolean default true
 );
 
 drop table if exists nurse_patient_blacklist;
@@ -146,18 +163,3 @@ create table nurses_procedures
 
 CREATE INDEX nurse_procedure_index
     ON nurses_procedures (nurse_id);
-
-drop table if exists reviews;
-create table reviews
-(
-    id                   bigserial primary key,
-    bid_id               bigint references bids (id) not null,
-    text                 text,
-    communicationQuality int                         not null,
-    serviceQuality       int                         not null,
-    arrivalRate          int                         not null,
-    constraint reviews_bid_unique_constraint unique (bid_id)
-);
-
-CREATE INDEX review_bid_index
-    ON reviews (bid_id);

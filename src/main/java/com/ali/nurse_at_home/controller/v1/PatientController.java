@@ -18,6 +18,7 @@ import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -94,25 +95,31 @@ public class PatientController implements PatientControllerDocs {
     }
 
     //Получить черный список пациентов (для медсестры)
+    @Override
 //    @CheckPermission(roles = {NURSE})
     @GetMapping("/blacklist")
-    public ResponseEntity<Page<PatientThinDto>> getBlacklist() {
-        return ok(patientService.getBlackList());
+    public ResponseEntity<Page<PatientThinDto>> getBlacklist(@SortDefault(sort = {"lastname", "firstName"})
+                                                             Pageable pageable) {
+        return ok(patientService.getBlackList(pageable));
     }
 
     //Добавить пациента в черный список (для медсестры)
+    @Override
 //    @CheckPermission(roles = {NURSE})
     @PostMapping("/{id}/blacklist")
-    public ResponseEntity<Page<PatientThinDto>> addToBlacklist(@PathVariable long id) {
+    public ResponseEntity<Void> addToBlacklist(@PathVariable long id) {
         patientService.addToBlacklist(id);
         return ok().build();
     }
 
-    //Удалить пациента из черный список (для медсестры)
+    //Удалить пациента из черного списка (для медсестры)
+    @Override
 //    @CheckPermission(roles = {NURSE})
     @DeleteMapping("/{id}/blacklist")
-    public ResponseEntity<Page<PatientThinDto>> removeFromBlacklist(@PathVariable long id) {
-        return ok(patientService.removeFromBlacklist(id));
+    public ResponseEntity<Page<PatientThinDto>> removeFromBlacklist(@PathVariable long id,
+                                                                    @SortDefault(sort = {"lastname", "firstName"})
+                                                                    Pageable pageable) {
+        return ok(patientService.removeFromBlacklist(id, pageable));
     }
 
 }

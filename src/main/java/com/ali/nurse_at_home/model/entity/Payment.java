@@ -23,16 +23,16 @@ public class Payment {
     @GeneratedValue(strategy = IDENTITY)
     Long id;
 
-    Long patientId;  // Пациент, который заплатил
+    Long patientId;                 // Пациент, который заплатил
 
     @OneToOne
-    Bid bid;  // Заявка, за которую был совершен платеж
+    Bid bid;                        // Заявка, за которую был совершен платеж
 
-    Double amount;  // Сумма платежа
+    Double amount;                  // Сумма платежа
 
     @CreationTimestamp
-    LocalDateTime paymentDate;  // Дата платежа
+    LocalDateTime paymentDate;      // Дата платежа
 
-    PaymentMethod paymentMethod;  // Метод оплаты (например, карта, наличные)
+    PaymentMethod paymentMethod;    // Метод оплаты (например, карта, наличные)
 
 }

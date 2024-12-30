@@ -6,16 +6,16 @@ import com.ali.nurse_at_home.model.dto.patient.PatientThinDto;
 import com.ali.nurse_at_home.model.entity.Patient;
 import com.ali.nurse_at_home.model.params.PatientParams;
 import com.ali.nurse_at_home.model.params.update.PatientUpdateParams;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 import java.util.UUID;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
-import static org.mapstruct.ReportingPolicy.IGNORE;
+import static org.mapstruct.NullValuePropertyMappingStrategy.IGNORE;
 
-@Mapper(componentModel = SPRING, unmappedTargetPolicy = IGNORE, uses = AddressMapper.class)
+@Mapper(componentModel = SPRING,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        uses = AddressMapper.class)
 public interface PatientMapper {
 
     @Mapping(target = "isActive", constant = "true")
@@ -29,5 +29,6 @@ public interface PatientMapper {
 
     PatientThinDto toThinDto(Patient patient);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = IGNORE)
     Patient updatePatient(@MappingTarget Patient patient, PatientUpdateParams params);
 }

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDate;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -20,14 +23,13 @@ public class Review {
     @GeneratedValue(strategy = IDENTITY)
     Long id;
 
-    @OneToOne(fetch = LAZY, mappedBy = "reviewId")
+    @OneToOne(fetch = LAZY)
     Bid bid;
 
     String text;
 
-    Integer communicationQuality;
+    Integer rate;
 
-    Integer serviceQuality;
-
-    Integer arrivalRate;
+    @CreationTimestamp
+    LocalDate date;
 }

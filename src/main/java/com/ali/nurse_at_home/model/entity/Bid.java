@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -49,5 +50,6 @@ public class Bid {
     @ManyToOne
     Address address;
 
-    Long reviewId;
+    @OneToOne(fetch = LAZY, mappedBy = "bid")
+    Review review;
 }

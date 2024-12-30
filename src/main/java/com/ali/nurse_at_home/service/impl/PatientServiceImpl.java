@@ -5,10 +5,14 @@ import com.ali.nurse_at_home.mapper.PatientMapper;
 import com.ali.nurse_at_home.model.dto.patient.PatientExtendedDto;
 import com.ali.nurse_at_home.model.dto.patient.PatientFullDto;
 import com.ali.nurse_at_home.model.dto.patient.PatientThinDto;
+import com.ali.nurse_at_home.model.entity.Nurse;
+import com.ali.nurse_at_home.model.entity.NursePatientBlacklist;
 import com.ali.nurse_at_home.model.entity.Patient;
 import com.ali.nurse_at_home.model.entity.PatientAddress;
 import com.ali.nurse_at_home.model.params.PatientParams;
 import com.ali.nurse_at_home.model.params.update.PatientUpdateParams;
+import com.ali.nurse_at_home.repository.BlacklistRepository;
+import com.ali.nurse_at_home.repository.NurseRepository;
 import com.ali.nurse_at_home.repository.PatientAddressRepository;
 import com.ali.nurse_at_home.repository.PatientRepository;
 import com.ali.nurse_at_home.service.AddressService;
@@ -23,12 +27,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
+import static com.ali.nurse_at_home.model.enums.Initiator.NURSE;
 import static com.ali.nurse_at_home.utils.SecurityContextUtils.getUserIdFromToken;
 import static java.util.List.of;
 import static java.util.Objects.isNull;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +45,9 @@ public class PatientServiceImpl implements PatientService {
     AddressMapper addressMapper;
 
     AddressService addressService;
+    NurseRepository nurseRepository;
     PatientRepository patientRepository;
+    BlacklistRepository blacklistRepository;
     PatientAddressRepository patientAddressRepository;
 
     //TODO не уверен, нужно ли тут возвращать модель пациента (возможно будет дергаться из Oauth)
@@ -117,30 +125,52 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    @Transactional
     public void deleteById(long id) {
-        patientRepository.findById(id)
-                .map(patient -> {
-                    patient.setIsActive(false);
-                    return patient;
+        patientRepository.findById(id).ifPresent(patient -> {
+            patient.setIsActive(false);
+            patientRepository.save(patient);
+        });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PatientThinDto> getBlackList(Pageable pageable) {
+        List<Long> patientIds = nurseRepository.findByUserId(getUserIdFromToken())
+                .map(nurse -> nurse.getBlackList().stream()
+                        .filter(b -> b.getInitiator() == NURSE)
+                        .map(NursePatientBlacklist::getPatientId)
+                        .toList())
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Не удалось найти медсестру"));
+        return patientRepository.findAllByIdIn(patientIds, pageable).map(patientMapper::toThinDto);
+    }
+
+    @Override
+    @Transactional
+    public void addToBlacklist(long patientId) {
+        val nurseId = nurseRepository.findByUserId(getUserIdFromToken())
+                .map(Nurse::getId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Медсестра не найдена"));
+        blacklistRepository.findBlackListNurse(nurseId, patientId)
+                .orElseGet(() -> blacklistRepository.save(new NursePatientBlacklist(nurseId, patientId, NURSE)));
+    }
+
+    //TODO
+    @Override
+    public Page<PatientThinDto> removeFromBlacklist(long id, Pageable pageable) {
+        return nurseRepository.findByUserId(getUserIdFromToken())
+                .map(nurse -> {
+                    nurse.setBlackList(nurse.getBlackList().stream()
+                            .filter(black -> black.getInitiator() == NURSE)
+                            .filter(black -> black.getPatientId() != id)
+                            .toList());
+                    val patientIds = nurseRepository.save(nurse)
+                            .getBlackList().stream()
+                            .map(NursePatientBlacklist::getPatientId)
+                            .toList();
+                    return patientRepository.findAllByIdIn(patientIds, pageable)
+                            .map(patientMapper::toThinDto);
                 })
-                .map(patientRepository::save);
-    }
-
-    //TODO
-    @Override
-    public Page<PatientThinDto> getBlackList() {
-        throw new ResponseStatusException(NOT_IMPLEMENTED);
-    }
-
-    //TODO
-    @Override
-    public void addToBlacklist(long id) {
-        throw new ResponseStatusException(NOT_IMPLEMENTED);
-    }
-
-    //TODO
-    @Override
-    public Page<PatientThinDto> removeFromBlacklist(long id) {
-        throw new ResponseStatusException(NOT_IMPLEMENTED);
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Медсестра не найдена"));
     }
 }

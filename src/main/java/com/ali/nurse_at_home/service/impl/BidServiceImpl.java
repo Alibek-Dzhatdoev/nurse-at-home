@@ -12,6 +12,7 @@ import com.ali.nurse_at_home.repository.ProcedureRepository;
 import com.ali.nurse_at_home.service.BidService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,6 +24,7 @@ import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = PRIVATE, makeFinal = true)

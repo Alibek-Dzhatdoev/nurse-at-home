@@ -26,4 +26,6 @@ public class Procedure {
     String description;
 
     String imageUrl;
+
+    Boolean isActive;
 }

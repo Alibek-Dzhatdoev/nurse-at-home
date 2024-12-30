@@ -26,10 +26,10 @@ public interface PatientService {
 
     void deleteById(long id);
 
-    Page<PatientThinDto> getBlackList();
+    Page<PatientThinDto> getBlackList(Pageable pageable);
 
     void addToBlacklist(long id);
 
-    Page<PatientThinDto> removeFromBlacklist(long id);
+    Page<PatientThinDto> removeFromBlacklist(long id, Pageable pageable);
 
 }
