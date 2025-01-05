@@ -64,6 +64,12 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ApiError> onDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        return onHandleResponseStatusException(new ResponseStatusException(BAD_REQUEST, ex.getMostSpecificCause().getMessage(), ex));
+        String message = ex.getMostSpecificCause().getMessage();
+        if(message.contains("ограничение уникальности \"patients_email_key\"")){
+            message = "Этот еmail уже занят";
+        } else if(message.contains("ограничение уникальности \"patients_mobile_phone_key\"")) {
+            message = "Этот номер телефона уже занят";
+        }
+        return onHandleResponseStatusException(new ResponseStatusException(BAD_REQUEST, message, ex));
     }
 }

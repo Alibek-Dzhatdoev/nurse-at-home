@@ -1,6 +1,5 @@
 package com.ali.nurse_at_home.controller.v1;
 
-import com.ali.nurse_at_home.aspect.CheckPermission;
 import com.ali.nurse_at_home.model.dto.ProcedureDto;
 import com.ali.nurse_at_home.model.dto.ProcedureThinDto;
 import com.ali.nurse_at_home.model.entity.Procedure;
@@ -20,7 +19,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static com.ali.nurse_at_home.model.enums.Role.SUPER_ADMIN;
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.ResponseEntity.ok;
@@ -36,14 +34,14 @@ public class ProcedureController {
 
     //добавить услугу
     @PostMapping
-    @CheckPermission(roles = SUPER_ADMIN)
+//    @CheckPermission(roles = SUPER_ADMIN)
     public ResponseEntity<ProcedureDto> create(@RequestBody @Valid ProcedureParams params) {
         return status(CREATED).body(procedureService.create(params));
     }
 
     //удалить услугу
     @DeleteMapping("/{id}")
-    @CheckPermission(roles = SUPER_ADMIN)
+//    @CheckPermission(roles = SUPER_ADMIN)
     public ResponseEntity<Void> delete(@PathVariable long id) {
         procedureService.deleteById(id);
         return ok().build();
@@ -51,7 +49,7 @@ public class ProcedureController {
 
     //обновить услугу
     @PatchMapping("/{id}")
-    @CheckPermission(roles = SUPER_ADMIN)
+//    @CheckPermission(roles = SUPER_ADMIN)
     public ResponseEntity<ProcedureDto> update(@PathVariable long id,
                                     @RequestBody ProcedureParams params) {
         return ok(procedureService.update(id, params));
@@ -65,7 +63,7 @@ public class ProcedureController {
 
     //получить страницу услуг (неактивных тоже)
     @GetMapping("/all")
-    @CheckPermission(roles = SUPER_ADMIN)
+//    @CheckPermission(roles = SUPER_ADMIN)
     public ResponseEntity<Page<ProcedureThinDto>> getAllWithInactiveOnes(
             @And({
                     @Spec(path = "price", params = {"priceFrom", "priceTo"}, spec = Between.class),

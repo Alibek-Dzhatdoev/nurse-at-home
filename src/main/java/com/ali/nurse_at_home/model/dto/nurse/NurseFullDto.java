@@ -31,9 +31,6 @@ public class NurseFullDto {
     @Schema(description = "URL на фото диплома")
     String diplomaUrl;
 
-    @Schema(description = "Адрес, взятый за отправную точку для поиска пациентов")
-    AddressDto address;
-
     @Schema(description = "Радиус поиска пациентов медсестры")
     SearchRadius searchRadius;
 
@@ -42,4 +39,7 @@ public class NurseFullDto {
 
     @Schema(description = "Рейтинг медсестры (до 5)")
     Double rating;
+
+    @Schema(description = "Адрес, взятый за отправную точку для поиска пациентов")
+    AddressDto address;
 }

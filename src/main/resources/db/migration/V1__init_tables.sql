@@ -74,18 +74,18 @@ CREATE INDEX patient_address_index
 drop table if exists nurses;
 create table nurses
 (
-    id           bigserial primary key,
-    firstname    varchar not null,
-    lastname     varchar not null,
-    diploma_url  varchar,
-    passport_url varchar,
-    photo_url    varchar,
-    address_id   bigint references addresses (id),
-    searchRadius varchar not null,
-    user_id      uuid    not null unique,
-    is_available boolean not null default false,
-    is_verified  boolean not null default false,
-    rating       double precision
+    id            bigserial primary key,
+    firstname     varchar not null,
+    lastname      varchar not null,
+    diploma_url   varchar,
+    passport_url  varchar,
+    photo_url     varchar,
+    address_id    bigint references addresses (id),
+    search_radius varchar not null,
+    user_id       uuid    not null unique,
+    is_available  boolean default false,
+    is_verified   boolean default false,
+    rating        double precision
 );
 
 CREATE INDEX nurses_user_id_index
@@ -115,11 +115,10 @@ CREATE INDEX patient_bids_index
 drop table if exists reviews;
 create table reviews
 (
-    id        bigserial primary key,
+    id     bigserial primary key,
     bid_id bigint references bids (id) not null,
-    text      text,
-    rate      int                         not null,
-    date      date                        not null
+    rate   int                         not null,
+    date   date                        not null
 );
 
 CREATE INDEX bids_review_index

@@ -26,8 +26,6 @@ public class Review {
     @OneToOne(fetch = LAZY)
     Bid bid;
 
-    String text;
-
     Integer rate;
 
     @CreationTimestamp

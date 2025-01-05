@@ -27,15 +27,16 @@ public class NurseParams {
     @Size(min = 2, max = 20, message = "Фамилия должна быть от 2 до 20 символов")
     String lastname;
 
-    @Schema(description = "Адрес, от которого будет производиться поиск пациентов")
-    @NotNull(message = "Укажите адрес")
-    AddressParams address;
-
     @Schema(description = "Радиус поиска пациентов",
             allowableValues = {"ONE", "THREE", "FIVE", "TEN"})
     @NotNull(message = "Выберите радиус поиска пациентов")
     SearchRadius searchRadius;
 
-    @Schema(description = "Список ID услуг(процедур), которые медсестра согласна исполнять (может изменить позже)")
+    @Schema(description = "Список ID услуг(процедур), которые медсестра согласна исполнять (может изменить позже)",
+            example = "[1,2,3]")
     List<Long> procedureIds;
+
+    @Schema(description = "Адрес, от которого будет производиться поиск пациентов")
+    @NotNull(message = "Укажите адрес")
+    AddressParams address;
 }

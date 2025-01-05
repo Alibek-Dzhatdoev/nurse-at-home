@@ -4,6 +4,7 @@ import com.ali.nurse_at_home.mapper.NurseMapper;
 import com.ali.nurse_at_home.model.dto.nurse.NurseExtendedDto;
 import com.ali.nurse_at_home.model.dto.nurse.NurseFullDto;
 import com.ali.nurse_at_home.model.dto.nurse.NurseThinDto;
+import com.ali.nurse_at_home.model.entity.Nurse;
 import com.ali.nurse_at_home.model.entity.NursePatientBlacklist;
 import com.ali.nurse_at_home.model.entity.Patient;
 import com.ali.nurse_at_home.model.entity.Procedure;
@@ -25,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.ali.nurse_at_home.model.enums.Initiator.PATIENT;
 import static com.ali.nurse_at_home.utils.SecurityContextUtils.getUserIdFromToken;
@@ -51,25 +54,40 @@ public class NurseServiceImpl implements NurseService {
         val nurse = nurseMapper.toNurse(params, getUserIdFromToken());
         val address = addressService.checkAddressAndReturn(params.getAddress());
         nurse.setAddress(address);
+        nurse.setProcedures(checkProcedures(params.getProcedureIds()));
         return nurseMapper.toFullDto(nurseRepository.save(nurse));
     }
 
     @Override
     @Transactional
     public NurseFullDto updateById(long id, NurseUpdateParams params) {
-        List<Procedure> procedures = procedureRepository.findAllById(params.getProcedureIds());
-        if (procedures.size() < params.getProcedureIds().size())
-            throw new ResponseStatusException(BAD_REQUEST, "Укажите корректные ID процедур");
+        return updateNurse(() -> nurseRepository.findById(id), params);
+    }
+
+    @Override
+    @Transactional
+    public NurseFullDto updateByToken(NurseUpdateParams params) {
+        return updateNurse(() -> nurseRepository.findByUserId(getUserIdFromToken()), params);
+    }
+
+    private NurseFullDto updateNurse(Supplier<Optional<Nurse>> nurseSupplier, NurseUpdateParams params) {
+        List<Procedure> procedures = checkProcedures(params.getProcedureIds());
         val address = addressService.checkAddressAndReturn(params.getAddress());
-        return nurseRepository.findById(id)
+        return nurseSupplier.get()
                 .map(nurse -> nurseMapper.update(nurse, params))
                 .map(nurse -> {
                     nurse.setProcedures(procedures);
                     nurse.setAddress(address);
-                    return nurseRepository.save(nurse);
+                    return nurseMapper.toFullDto(nurseRepository.save(nurse));
                 })
-                .map(nurseMapper::toFullDto)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Не удалось обновить медсестру"));
+    }
+
+    private List<Procedure> checkProcedures(List<Long> procedureIds) {
+        List<Procedure> procedures = procedureRepository.findAllById(procedureIds);
+        if (procedures.size() < procedureIds.size())
+            throw new ResponseStatusException(BAD_REQUEST, "Укажите корректные ID процедур");
+        return procedures;
     }
 
     @Override

@@ -36,16 +36,16 @@ public interface PatientControllerDocs {
             content = @Content(
                     mediaType = APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = PatientFullDto.class)))
-    ResponseEntity<PatientFullDto> createPatient(@RequestBody PatientParams params);
+    ResponseEntity<PatientFullDto> create(@RequestBody PatientParams params);
 
-//    @Hidden
+    //    @Hidden
     @Operation(summary = "Получить полную информацию пациента по id (для администратора или внутренней логики)",
             description = "Метод для получения полной информации о пациенте (предназначен для администратора или внутренней логики)")
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
                     mediaType = APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = PatientFullDto.class)))
-    ResponseEntity<PatientFullDto> getFullPatientById(@Parameter(description = "ID пациента", example = "1") long id);
+    ResponseEntity<PatientFullDto> getFullById(@Parameter(description = "ID пациента", example = "1") long id);
 
     @Operation(summary = "Получить полную информацию пациента по токену (для пациента)",
             description = "Метод для получения полной информации о пациенте (предназначен для пациента)")
@@ -53,7 +53,7 @@ public interface PatientControllerDocs {
             content = @Content(
                     mediaType = APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = PatientFullDto.class)))
-    ResponseEntity<PatientFullDto> getFullPatientByToken();
+    ResponseEntity<PatientFullDto> getFullByToken();
 
     @Operation(
             summary = "Получить расширенную информацию о пациенте (для медсестры)",
@@ -62,17 +62,26 @@ public interface PatientControllerDocs {
             content = @Content(
                     mediaType = APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = PatientExtendedDto.class)))
-    ResponseEntity<PatientExtendedDto> getExtendedPatientById(@Parameter(description = "ID пациента", example = "1") long id);
+    ResponseEntity<PatientExtendedDto> getExtendedById(@Parameter(description = "ID пациента", example = "1") long id);
 
-    @Operation(summary = "Получить страницу пациентов (можно по спецификации)",
-            description = "Метод для получения списка пациентов (пока непонятно для кого)")
+    @Operation(summary = "Получить страницу пациентов (для админа)",
+            description = "Метод для получения списка пациентов (для админа)")
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
                     mediaType = APPLICATION_JSON_VALUE,
                     array = @ArraySchema(schema = @Schema(implementation = PatientThinDto.class))))
-    ResponseEntity<Page<PatientThinDto>> getAllPatients(@Parameter(description = "Спецификация для фильтрации пациентов", example = PATIENT_SPEC_EXAMPLE)
-                                                        Specification<Patient> patientSpec,
-                                                        @ParameterObject Pageable pageable);
+    ResponseEntity<Page<PatientThinDto>> getAll(@Parameter(description = "Спецификация для фильтрации пациентов", example = PATIENT_SPEC_EXAMPLE)
+                                                Specification<Patient> patientSpec,
+                                                @ParameterObject Pageable pageable);
+
+    @Operation(summary = "Обновить информацию о пациенте (для админа)",
+            description = "Метод для обновления информации о пациенте (предназначен для админа)")
+    @ApiResponse(responseCode = "200", description = "Success",
+            content = @Content(
+                    mediaType = APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = PatientFullDto.class)))
+    ResponseEntity<PatientFullDto> updateById(@Parameter(description = "ID пациента", example = "1") long id,
+                                              @RequestBody PatientUpdateParams params);
 
     @Operation(summary = "Обновить информацию о пациенте (для пациента)",
             description = "Метод для обновления информации о пациенте (предназначен для пациентов)")
@@ -80,14 +89,13 @@ public interface PatientControllerDocs {
             content = @Content(
                     mediaType = APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = PatientFullDto.class)))
-    ResponseEntity<PatientFullDto> patchPatient(@Parameter(description = "ID пациента", example = "1") long id,
-                                                @RequestBody PatientUpdateParams params);
+    ResponseEntity<PatientFullDto> updateByToken(@RequestBody PatientUpdateParams params);
 
     @Operation(summary = "Удалить пациента (но оставить запись в БД)",
             description = "Метод помечает пациента как неактивного")
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content)
-    ResponseEntity<Void> deletePatient(@Parameter(description = "ID пациента", example = "1") long id);
+    ResponseEntity<Void> deleteById(@Parameter(description = "ID пациента", example = "1") long id);
 
     @Operation(summary = "Получить черный список пациентов (для медсестры)",
             description = "Метод для получения черного списка пациентов")

@@ -37,13 +37,21 @@ public class NurseController implements NurseControllerDocs {
         return status(CREATED).body(nurseService.create(params));
     }
 
-    //Обновить медсестру
+    //Обновить медсестру (для админа)
     @Override
     @PatchMapping("/{id}")
-//    @CheckPermission(roles = {SUPER_ADMIN, NURSE})
+//    @CheckPermission(roles = {SUPER_ADMIN})
     public ResponseEntity<NurseFullDto> updateById(@PathVariable long id,
                                                    @RequestBody @Valid NurseUpdateParams params) {
         return ok(nurseService.updateById(id, params));
+    }
+
+    //Обновить медсестру для медсестры
+    @Override
+    @PatchMapping
+//    @CheckPermission(roles = {NURSE})
+    public ResponseEntity<NurseFullDto> updateByToken(@RequestBody @Valid NurseUpdateParams params) {
+        return ok(nurseService.updateByToken(params));
     }
 
     //Получить список медсестер, которые уже оказывали услуги (для пациента, сокращенная информация)
@@ -78,8 +86,8 @@ public class NurseController implements NurseControllerDocs {
     @DeleteMapping("/{id}/blacklist")
 //    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
     public ResponseEntity<Page<NurseThinDto>> removeFromBlacklist(@PathVariable long id,
-                                                                       @SortDefault(sort = {"lastname", "firstName"})
-                                                                       Pageable pageable) {
+                                                                  @SortDefault(sort = {"lastname", "firstName"})
+                                                                  Pageable pageable) {
         return ok(nurseService.removeNurseFromBlacklist(id, pageable));
     }
 

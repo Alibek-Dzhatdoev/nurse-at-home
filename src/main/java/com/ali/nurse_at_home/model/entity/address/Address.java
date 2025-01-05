@@ -29,7 +29,7 @@ public class Address {
     int entrance;
     int apartment;
 
-    int timezone;
+//    int timezone;
 
     Double latitude;        // Географическая широта (для карт и навигации)
     Double longitude;

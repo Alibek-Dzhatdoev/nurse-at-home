@@ -1,4 +1,4 @@
-package com.ali.nurse_at_home.config;
+package com.ali.nurse_at_home.service.impl.config;
 
 import net.kaczmarzyk.spring.data.jpa.web.SpecificationArgumentResolver;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

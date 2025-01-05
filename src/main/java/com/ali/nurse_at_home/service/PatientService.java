@@ -22,7 +22,9 @@ public interface PatientService {
 
     Page<PatientThinDto> getAll(Specification<Patient> patientSpec, Pageable pageable);
 
-    PatientFullDto patchPatient(long id, PatientUpdateParams params);
+    PatientFullDto updateById(long id, PatientUpdateParams params);
+
+    PatientFullDto updateByToken(PatientUpdateParams params);
 
     void deleteById(long id);
 

@@ -17,9 +17,6 @@ public class ReviewParams {
     @Schema(description = "ID выполненной заявки", example = "1")
     Long bidId;
 
-    @Schema(description = "Текст отзыва", example = "Хорошая медсестра")
-    String text;
-
     @NotNull(message = "Укажите оценку")
     @Range(min = 1, max = 5, message = "Оценка должна быть от 1 до 5")
     @Schema(description = "Качество общения", example = "5")

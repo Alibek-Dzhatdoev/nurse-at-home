@@ -1,6 +1,6 @@
 package com.ali.nurse_at_home.utils;
 
-import com.ali.nurse_at_home.config.properties.ServiceClientProperties;
+import com.ali.nurse_at_home.service.impl.config.properties.ServiceClientProperties;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.web.server.ResponseStatusException;

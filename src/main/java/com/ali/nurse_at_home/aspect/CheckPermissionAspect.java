@@ -12,7 +12,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 
-import static com.ali.nurse_at_home.model.enums.Role.SUPER_ADMIN;
 import static com.ali.nurse_at_home.utils.SecurityContextUtils.getCurrentRole;
 import static java.lang.String.format;
 import static lombok.AccessLevel.PRIVATE;
@@ -42,7 +41,7 @@ public class CheckPermissionAspect {
 
         boolean hasPermission = Arrays.stream(checkPermission.roles())
                 .map(role -> role.description)
-                .anyMatch(role -> role.equals(userRole) || userRole.equals(SUPER_ADMIN.description));
+                .anyMatch(role -> role.equals(userRole));
 
         if (!hasPermission) {
             throw new ResponseStatusException(UNAUTHORIZED, format("Wrong role: %s. You do not have permission.", userRole));

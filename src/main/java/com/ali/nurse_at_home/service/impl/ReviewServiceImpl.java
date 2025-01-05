@@ -1,7 +1,6 @@
 package com.ali.nurse_at_home.service.impl;
 
 import com.ali.nurse_at_home.mapper.ReviewMapper;
-import com.ali.nurse_at_home.model.dto.ReviewDto;
 import com.ali.nurse_at_home.model.entity.Bid;
 import com.ali.nurse_at_home.model.params.ReviewParams;
 import com.ali.nurse_at_home.repository.BidRepository;
@@ -11,8 +10,6 @@ import com.ali.nurse_at_home.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,7 +31,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void create(ReviewParams params) {
+    public void createOrUpdate(ReviewParams params) {
         val bidOptional = bidRepository.findByIdAndStatusIsDone(params.getBidId());
         if (bidOptional.isPresent()) {
             Bid bid = bidOptional.get();
@@ -54,12 +51,6 @@ public class ReviewServiceImpl implements ReviewService {
         } else {
             throw new ResponseStatusException(NOT_FOUND, "Указанная заявка еще не выполнена или не существует");
         }
-    }
-
-    @Override
-    public Page<ReviewDto> getAll(long nurseId, Pageable pageable) {
-        return reviewRepository.findAllByNurseId(nurseId, pageable)
-                .map(reviewMapper::toDto);
     }
 
     @Override

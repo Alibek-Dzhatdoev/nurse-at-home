@@ -1,10 +1,10 @@
 package com.ali.nurse_at_home.service.impl;
 
 import com.ali.nurse_at_home.client.OauthClient;
-import com.ali.nurse_at_home.config.properties.ServiceClientProperties;
 import com.ali.nurse_at_home.model.request.TokenIntrospectRequest;
 import com.ali.nurse_at_home.model.response.TokenIntrospectResponse;
 import com.ali.nurse_at_home.service.AuthService;
+import com.ali.nurse_at_home.service.impl.config.properties.ServiceClientProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;

@@ -71,14 +71,22 @@ public interface NurseControllerDocs {
                     array = @ArraySchema(schema = @Schema(implementation = NurseThinDto.class))))
     ResponseEntity<Page<NurseThinDto>> getFromDoneBids(@ParameterObject Pageable pageable);
 
-    @Operation(summary = "Обновить информацию о медсестре (для медсестры)",
-            description = "Метод для обновления информации о медсестре (предназначен для медсестер)")
+    @Operation(summary = "Обновить информацию о медсестре по ID (для админа)",
+            description = "Метод для обновления информации о медсестре (предназначен для админа)")
     @ApiResponse(responseCode = "200", description = "Success",
             content = @Content(
                     mediaType = APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = NurseFullDto.class)))
     ResponseEntity<NurseFullDto> updateById(@Parameter long id,
                                             @RequestBody NurseUpdateParams params);
+
+    @Operation(summary = "Обновить информацию о медсестре по токену (для медсестры)",
+            description = "Метод для обновления информации о медсестре (предназначен для медсестер)")
+    @ApiResponse(responseCode = "200", description = "Success",
+            content = @Content(
+                    mediaType = APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = NurseFullDto.class)))
+    ResponseEntity<NurseFullDto> updateByToken(@RequestBody NurseUpdateParams params);
 
     @Operation(summary = "Удалить медсестру (но оставить запись в БД)",
             description = "Метод помечает медсестры как неактивного")

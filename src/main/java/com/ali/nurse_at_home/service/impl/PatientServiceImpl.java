@@ -97,11 +97,19 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     @Transactional
-    public PatientFullDto patchPatient(long id, PatientUpdateParams params) {
+    public PatientFullDto updateById(long id, PatientUpdateParams params) {
         return patientRepository.findById(id)
                 .map(patient -> patientMapper.updatePatient(patient, params))
                 .map(patient -> patientMapper.toFullDto(updateAddressIfNeed(params, patient)))
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Пациент не найден"));
+    }
+
+    @Override
+    public PatientFullDto updateByToken(PatientUpdateParams params) {
+        return patientRepository.findByUserId(getUserIdFromToken())
+                .map(patient -> patientMapper.updatePatient(patient, params))
+                .map(patient -> patientMapper.toFullDto(updateAddressIfNeed(params, patient)))
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Не удалось найти пациента и обновить данные"));
     }
 
     private Patient updateAddressIfNeed(PatientUpdateParams params, Patient patient) {

@@ -1,4 +1,4 @@
-package com.ali.nurse_at_home.config.properties;
+package com.ali.nurse_at_home.service.impl.config.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

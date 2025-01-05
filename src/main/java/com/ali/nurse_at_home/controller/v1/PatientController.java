@@ -38,35 +38,35 @@ public class PatientController implements PatientControllerDocs {
     @Override
     @PostMapping
 //    @CheckPermission(roles = {SUPER_ADMIN, SERVICE})
-    public ResponseEntity<PatientFullDto> createPatient(@RequestBody @Valid PatientParams params) {
+    public ResponseEntity<PatientFullDto> create(@RequestBody @Valid PatientParams params) {
         return status(CREATED).body(patientService.create(params));
     }
 
     @Override
     @GetMapping("/{id}/full")
 //    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
-    public ResponseEntity<PatientFullDto> getFullPatientById(@PathVariable long id) {
+    public ResponseEntity<PatientFullDto> getFullById(@PathVariable long id) {
         return ok(patientService.getFullById(id));
     }
 
     @Override
     @GetMapping("/my-account")
 //    @CheckPermission(roles = {PATIENT})
-    public ResponseEntity<PatientFullDto> getFullPatientByToken() {
+    public ResponseEntity<PatientFullDto> getFullByToken() {
         return ok(patientService.getFullByToken());
     }
 
     @Override
     @GetMapping("/{id}")
 //    @CheckPermission(roles = {SUPER_ADMIN, NURSE})
-    public ResponseEntity<PatientExtendedDto> getExtendedPatientById(@PathVariable long id) {
+    public ResponseEntity<PatientExtendedDto> getExtendedById(@PathVariable long id) {
         return ok(patientService.getExtendedById(id));
     }
 
     @Override
     @GetMapping
 //    @CheckPermission(roles = {SUPER_ADMIN})
-    public ResponseEntity<Page<PatientThinDto>> getAllPatients(
+    public ResponseEntity<Page<PatientThinDto>> getAll(
             @And({
                     @Spec(path = "mobilePhone", params = "mobilePhone", spec = Equal.class),
                     @Spec(path = "firstname", params = "firstname", spec = LikeIgnoreCase.class),
@@ -80,16 +80,23 @@ public class PatientController implements PatientControllerDocs {
 
     @Override
     @PatchMapping("/{id}")
-//    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
-    public ResponseEntity<PatientFullDto> patchPatient(@PathVariable long id,
-                                                       @RequestBody PatientUpdateParams params) {
-        return ok(patientService.patchPatient(id, params));
+//    @CheckPermission(roles = SUPER_ADMIN)
+    public ResponseEntity<PatientFullDto> updateById(@PathVariable long id,
+                                                     @RequestBody @Valid PatientUpdateParams params) {
+        return ok(patientService.updateById(id, params));
+    }
+
+    @Override
+    @PatchMapping
+//    @CheckPermission(roles = PATIENT)
+    public ResponseEntity<PatientFullDto> updateByToken(@RequestBody @Valid PatientUpdateParams params) {
+        return ok(patientService.updateByToken(params));
     }
 
     @Override
     @DeleteMapping("/{id}")
 //    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
-    public ResponseEntity<Void> deletePatient(@PathVariable long id) {
+    public ResponseEntity<Void> deleteById(@PathVariable long id) {
         patientService.deleteById(id);
         return ok().build();
     }

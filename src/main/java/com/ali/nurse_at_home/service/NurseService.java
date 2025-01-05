@@ -14,6 +14,8 @@ public interface NurseService {
 
     NurseFullDto updateById(long id, NurseUpdateParams params);
 
+    NurseFullDto updateByToken(NurseUpdateParams params);
+
     NurseFullDto getByToken();
 
     NurseFullDto getFullById(long id);
