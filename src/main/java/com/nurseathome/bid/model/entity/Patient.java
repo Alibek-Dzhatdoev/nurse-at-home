@@ -3,7 +3,10 @@ package com.nurseathome.bid.model.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,6 +20,9 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @Setter
 @Entity
+@DynamicInsert
+@DynamicUpdate
+@Accessors(chain = true)
 @Table(name = "patients")
 @FieldDefaults(level = PRIVATE)
 public class Patient {
@@ -31,7 +37,8 @@ public class Patient {
     String mobilePhone;
     LocalDate dateOfBirth;
 
-    UUID userId;
+    UUID ssoUserId;
+    //TODO нужно ли это поле вообще?
     Boolean isActive;
 
     @OneToMany(mappedBy = "patient", cascade = ALL)
@@ -41,5 +48,5 @@ public class Patient {
     List<Bid> bids = new ArrayList<>();
 
     @OneToMany(mappedBy = "patientId")
-    List<NursePatientBlacklist> blackList;
+    List<NursePatientBlacklist> blackList = new ArrayList<>();
 }

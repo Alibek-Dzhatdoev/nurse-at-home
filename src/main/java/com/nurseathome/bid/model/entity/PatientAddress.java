@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 
 import static jakarta.persistence.CascadeType.PERSIST;
@@ -15,6 +16,7 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @Setter
 @NoArgsConstructor
+@Accessors(chain = true)
 @Table(name = "patients_addresses")
 @FieldDefaults(level = PRIVATE)
 public class PatientAddress {

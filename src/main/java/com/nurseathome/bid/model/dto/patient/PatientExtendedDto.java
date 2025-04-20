@@ -1,6 +1,5 @@
 package com.nurseathome.bid.model.dto.patient;
 
-import com.nurseathome.bid.model.dto.AddressDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -23,14 +22,8 @@ public class PatientExtendedDto {
     @Schema(description = "Фамилия пациента")
     String lastname;
 
-    @Schema(description = "Номер телефона пациента")
-    String mobilePhone;
-
     @Schema(description = "Дата рождения пациента")
     LocalDate dateOfBirth;
-
-    @Schema(description = "Адрес пациента (может быть несколько, но один основной")
-    AddressDto address;
 
     @Schema(description = "Активна ли учетная запись пациента")
     Boolean isActive;

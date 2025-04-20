@@ -19,6 +19,6 @@ public class ReviewParams {
 
     @NotNull(message = "Укажите оценку")
     @Range(min = 1, max = 5, message = "Оценка должна быть от 1 до 5")
-    @Schema(description = "Качество общения", example = "5")
+    @Schema(description = "Оценка качества оказанных услуг", example = "5")
     Integer rate;
 }

@@ -10,11 +10,10 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
-
-import static com.nurseathome.bid.utils.SecurityContextUtils.getCurrentRole;
-import static java.lang.String.format;
+import static com.nurseathome.bid.utils.JwtUtils.getCurrentRole;
+import static java.util.Arrays.stream;
 import static lombok.AccessLevel.PRIVATE;
+import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Slf4j
@@ -24,7 +23,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 public class CheckPermissionAspect {
 
-    AuthService authService;
+    AuthService authService; //Может понадобиться, если будем использовать привилегии, при этом их не будет в токене
 
     @Before(value = "@annotation(checkPermission)")
     public void checkPermissionMethodLevel(final CheckPermission checkPermission) {
@@ -39,12 +38,14 @@ public class CheckPermissionAspect {
     private void checkPermission(final CheckPermission checkPermission) {
         val userRole = getCurrentRole();
 
-        boolean hasPermission = Arrays.stream(checkPermission.roles())
-                .map(role -> role.description)
-                .anyMatch(role -> role.equals(userRole));
-
-        if (!hasPermission) {
-            throw new ResponseStatusException(UNAUTHORIZED, format("Wrong role: %s. You do not have permission.", userRole));
+        if (isNotEmpty(checkPermission.roles())) {
+            boolean hasRole = stream(checkPermission.roles())
+                    .map(Enum::name)
+                    .toList()
+                    .contains(userRole);
+            if (!hasRole) {
+                throw new ResponseStatusException(UNAUTHORIZED, "Wrong role. You do not have permission.");
+            }
         }
     }
 }

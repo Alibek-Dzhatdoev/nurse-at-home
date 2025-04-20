@@ -25,27 +25,19 @@ public class Nurse {
     Long id;
 
     String firstname;
-
     String lastname;
-
     String diplomaUrl;
-
     String passportUrl;
-
     String photoUrl;
+    SearchRadius searchRadius;
+    UUID ssoUserId;
+    Boolean isAvailable;
+    Boolean isVerified;
+    Boolean isActive;
+    Double rating;
 
     @ManyToOne
     Address address;
-
-    SearchRadius searchRadius;
-
-    UUID userId;
-
-    Boolean isAvailable;
-
-    Boolean isVerified;
-
-    Double rating;
 
     @OneToMany(mappedBy = "nurseId")
     List<Bid> bids;
@@ -55,7 +47,7 @@ public class Nurse {
 
     @ManyToMany
     @JoinTable(name = "nurses_procedures",
-            joinColumns = @JoinColumn(name = "nurse_id"),
-            inverseJoinColumns = @JoinColumn(name = "procedure_id"))
+               joinColumns = @JoinColumn(name = "nurse_id"),
+               inverseJoinColumns = @JoinColumn(name = "procedure_id"))
     List<Procedure> procedures;
 }

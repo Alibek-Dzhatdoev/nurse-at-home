@@ -3,66 +3,81 @@ create schema if not exists nurse_at_home;
 drop table if exists patient;
 create table patients
 (
-    id            bigserial primary key,
+    id            uuid primary key,
     email         varchar not null unique,
     firstname     varchar not null,
     lastname      varchar not null,
     mobile_phone  varchar not null unique,
     date_of_birth date,
-    user_id       uuid    not null unique,
+    sso_user_id   uuid    not null unique,
     is_active     boolean default false
 );
 
-CREATE INDEX patient_user_id_index
-    ON patients (user_id);
+CREATE INDEX patient_sso_user_id_index
+    ON patients (sso_user_id);
 
-drop table if exists regions;
-create table regions
+CREATE INDEX patient_email_index
+    ON patients (email);
+
+DROP TABLE IF EXISTS countries;
+create table countries
 (
     id   bigserial primary key,
-    name varchar not null unique
+    name varchar(50) NOT NULL UNIQUE
 );
 
-drop table if exists cities;
-create table cities
+DROP TABLE IF EXISTS provinces;
+create table provinces
 (
-    id        bigserial primary key,
-    name      varchar                        not null,
-    region_id bigint references regions (id) not null,
-    constraint city_in_region_unique_constraint unique (name, region_id)
+    id   bigserial primary key,
+    name varchar(50) NOT NULL UNIQUE
 );
 
-drop table if exists streets;
-create table streets
+DROP TABLE IF EXISTS areas;
+create table areas
 (
-    id      bigserial primary key,
-    name    varchar                       not null,
-    city_id bigint references cities (id) not null,
-    constraint street_in_city_unique_constraint unique (name, city_id)
+    id   bigserial primary key,
+    name varchar(50) NOT NULL UNIQUE
+);
+
+DROP TABLE IF EXISTS localities;
+create table localities
+(
+    id   bigserial primary key,
+    name varchar(50) NOT NULL UNIQUE
 );
 
 drop table if exists addresses;
 create table addresses
 (
-    id        bigserial primary key,
-    street_id bigint references streets (id),
-    city_id   bigint references cities (id),
-    entrance  int,
-    building  varchar not null,
-    apartment int,
-    latitude  double precision,
-    longitude double precision,
-    constraint address_unique_constraint unique (street_id, city_id, building, apartment, entrance)
+    id          bigserial primary key,
+    country_id  bigint references countries (id)  NOT NULL,
+    province_id bigint references provinces (id),
+    area_id     bigint references areas (id),
+    locality_id bigint references localities (id) NOT NULL,
+    street      VARCHAR,
+    house       VARCHAR                           NOT NULL,
+    entrance    int,
+    apartment   int,
+    floor       int,
+    intercom    int,
+    timezone    int,
+    latitude    double precision,
+    longitude   double precision,
+    constraint address_unique_constraint unique (country_id, province_id, area_id, locality_id, street,
+                                                 house, entrance,
+                                                 apartment, floor, intercom, latitude, longitude)
 );
 
 CREATE INDEX address_index
-    ON addresses (street_id, city_id, building, entrance, apartment);
+    ON addresses (country_id, province_id, area_id, locality_id, street, house, entrance, apartment, floor,
+                  intercom);
 
 drop table if exists patients_addresses;
 create table patients_addresses
 (
     id         bigserial primary key,
-    patient_id bigint references patients (id),
+    patient_id uuid references patients (id),
     address_id bigint references addresses (id),
     is_primary boolean,
     constraint patient_address_unique_constraint unique (patient_id, address_id)
@@ -71,32 +86,37 @@ create table patients_addresses
 CREATE INDEX patient_address_index
     ON patients_addresses (patient_id, address_id);
 
+CREATE UNIQUE INDEX patient_address_primary_unique_idx
+    ON patients_addresses (patient_id)
+    WHERE is_primary = true;
+
 drop table if exists nurses;
 create table nurses
 (
-    id            bigserial primary key,
+    id            uuid primary key,
     firstname     varchar not null,
     lastname      varchar not null,
+    email         varchar not null unique,
     diploma_url   varchar,
     passport_url  varchar,
     photo_url     varchar,
     address_id    bigint references addresses (id),
     search_radius varchar not null,
-    user_id       uuid    not null unique,
+    sso_user_id   uuid    not null unique,
     is_available  boolean default false,
     is_verified   boolean default false,
     rating        double precision
 );
 
 CREATE INDEX nurses_user_id_index
-    ON nurses (user_id);
+    ON nurses (sso_user_id);
 
 drop table if exists bids;
 create table bids
 (
     id             bigserial primary key,
-    patient_id     bigint references patients (id),
-    nurse_id       bigint references nurses (id),
+    patient_id     uuid references patients (id),
+    nurse_id       uuid references nurses (id),
     requested_time timestamp,
     scheduled_time timestamp,
     status         varchar,
@@ -139,9 +159,9 @@ drop table if exists nurse_patient_blacklist;
 create table nurse_patient_blacklist
 (
     id         bigserial primary key,
-    nurse_id   bigint references nurses (id)   not null,
-    patient_id bigint references patients (id) not null,
-    initiator  varchar                         not null,
+    nurse_id   uuid references nurses (id)   not null,
+    patient_id uuid references patients (id) not null,
+    initiator  varchar                       not null,
     constraint blacklist_unique_constraint unique (nurse_id, patient_id, initiator)
 );
 
@@ -155,7 +175,7 @@ drop table if exists nurses_procedures;
 create table nurses_procedures
 (
     id           bigserial primary key,
-    nurse_id     bigint references nurses (id)     not null,
+    nurse_id     uuid references nurses (id)       not null,
     procedure_id bigint references procedures (id) not null,
     constraint nurse_procedure_unique_constraint unique (nurse_id, procedure_id)
 );

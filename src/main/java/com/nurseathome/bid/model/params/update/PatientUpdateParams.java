@@ -1,7 +1,7 @@
 package com.nurseathome.bid.model.params.update;
 
-import com.nurseathome.bid.model.params.AddressParams;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nurseathome.bid.model.params.AddressParams;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -30,14 +30,9 @@ public class PatientUpdateParams {
     @Pattern(regexp = "^9\\d{9}$", message = "Номер телефона не соответствует шаблону")
     String mobilePhone;
 
-    @Schema(description = "Электронная почта", example = "user@gmail.com")
-    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-            message = "Электронная почта не соответствует шаблону")
-    String email;
-
     @Schema(description = "Дата рождения", example = "1995-06-07")
     @JsonFormat(shape = STRING, timezone = "UTC",
-            pattern = "yyyy-MM-dd")
+                pattern = "yyyy-MM-dd")
     LocalDate dateOfBirth;
 
     @Schema(description = "Основной адрес")

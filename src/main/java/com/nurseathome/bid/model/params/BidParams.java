@@ -1,7 +1,7 @@
 package com.nurseathome.bid.model.params;
 
-import com.nurseathome.bid.model.enums.TimeIntervals;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nurseathome.bid.model.enums.TimeIntervals;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
@@ -23,7 +23,7 @@ public class BidParams {
 
     @Schema(description = "Список ID услуг", example = "{1, 2}")
     @NotEmpty(message = "Выберите хотя бы одну процедуру")
-    List<Long> serviceIds;
+    List<Long> procedureIds;
 
     @Schema(description = "Запланированное время для процедур(необязательно)")
     TimeIntervals scheduledTime;    // если null, то заявка "как можно быстрее"
@@ -35,5 +35,4 @@ public class BidParams {
 
     @Schema(description = "Адрес проведения процедур(если нет - то вызов будет на основной адрес пациента)")
     AddressParams address;          //если null, то заявка на адрес проживания пациента
-
 }

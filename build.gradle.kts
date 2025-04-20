@@ -1,4 +1,5 @@
 import org.gradle.api.JavaVersion.VERSION_21
+import org.gradle.jvm.toolchain.JavaLanguageVersion.of
 
 plugins {
     java
@@ -10,6 +11,9 @@ group = "com.nurseathome"
 version = "0.0.1-SNAPSHOT"
 
 java {
+    toolchain {
+        languageVersion = of(23)
+    }
     sourceCompatibility = VERSION_21
 }
 
@@ -45,6 +49,8 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
+
+    implementation("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")

@@ -3,12 +3,10 @@ package com.nurseathome.bid.model.enums;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public enum Role {
+public enum Privilege {
 
-    PATIENT("patient"),
-    SERVICE("service"),
-    SUPER_ADMIN("super_admin"),
-    NURSE("nurse");
+    UPDATE_NURSE("update_nurse"),
+    ;
 
     public final String description;
 }

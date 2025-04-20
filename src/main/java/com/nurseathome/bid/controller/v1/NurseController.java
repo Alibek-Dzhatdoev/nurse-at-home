@@ -16,8 +16,11 @@ import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.ResponseEntity.noContent;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.http.ResponseEntity.status;
 
@@ -32,7 +35,7 @@ public class NurseController implements NurseControllerDocs {
     //Создать медсестру
     @Override
     @PostMapping
-//    @CheckPermission(roles = {SUPER_ADMIN, NURSE})
+    //    @CheckPermission(roles = {SERVICE})
     public ResponseEntity<NurseFullDto> create(@RequestBody NurseParams params) {
         return status(CREATED).body(nurseService.create(params));
     }
@@ -40,24 +43,39 @@ public class NurseController implements NurseControllerDocs {
     //Обновить медсестру (для админа)
     @Override
     @PatchMapping("/{id}")
-//    @CheckPermission(roles = {SUPER_ADMIN})
+    //    @CheckPermission(roles = {ADMIN})
     public ResponseEntity<NurseFullDto> updateById(@PathVariable long id,
                                                    @RequestBody @Valid NurseUpdateParams params) {
         return ok(nurseService.updateById(id, params));
     }
 
+    @PatchMapping("/is-active")
+    //    @CheckPermission(roles = SERVICE)
+    public ResponseEntity<Void> setActive(@RequestParam UUID ssoUserId,
+                                          @RequestParam boolean isActive) {
+        nurseService.setIsActive(ssoUserId, isActive);
+        return noContent().build();
+    }
+
     //Обновить медсестру для медсестры
     @Override
     @PatchMapping
-//    @CheckPermission(roles = {NURSE})
+    //    @CheckPermission(roles = {NURSE})
     public ResponseEntity<NurseFullDto> updateByToken(@RequestBody @Valid NurseUpdateParams params) {
         return ok(nurseService.updateByToken(params));
     }
 
+    @PatchMapping("/ready-to-work/{isAvailable}")
+    //    @CheckPermission(roles = {NURSE})
+    public ResponseEntity<Void> setIsAvailable(@PathVariable boolean isAvailable) {
+        nurseService.setIsAvailable(isAvailable);
+        return noContent().build();
+    }
+
     //Получить список медсестер, которые уже оказывали услуги (для пациента, сокращенная информация)
     @Override
-    @GetMapping("/from-done-bids")
-//    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
+    @GetMapping("/from-bid-history")
+    //    @CheckPermission(roles = {ADMIN, PATIENT})
     public ResponseEntity<Page<NurseThinDto>> getFromDoneBids(@SortDefault(sort = {"lastname", "firstName"})
                                                               Pageable pageable) {
         return ok(nurseService.getFromDoneBids(pageable));
@@ -66,7 +84,7 @@ public class NurseController implements NurseControllerDocs {
     //Получить черный список медсестер (для пациента, сокращенная информация)
     @Override
     @GetMapping("/blacklist")
-//    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
+    //    @CheckPermission(roles = {ADMIN, PATIENT})
     public ResponseEntity<Page<NurseThinDto>> getBlacklist(@SortDefault(sort = {"lastname", "firstName"})
                                                            Pageable pageable) {
         return ok(nurseService.getBlacklist(pageable));
@@ -75,7 +93,7 @@ public class NurseController implements NurseControllerDocs {
     //Добавить медсестру в черный список (для пациента)
     @Override
     @PostMapping("/{id}/blacklist")
-//    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
+    //    @CheckPermission(roles = {ADMIN, PATIENT})
     public ResponseEntity<Void> addToBlacklist(@PathVariable long id) {
         nurseService.addNurseToBlacklist(id);
         return ok().build();
@@ -84,7 +102,7 @@ public class NurseController implements NurseControllerDocs {
     //Удалить медсестру из черного списка (для пациента)
     @Override
     @DeleteMapping("/{id}/blacklist")
-//    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
+    //    @CheckPermission(roles = {ADMIN, PATIENT})
     public ResponseEntity<Page<NurseThinDto>> removeFromBlacklist(@PathVariable long id,
                                                                   @SortDefault(sort = {"lastname", "firstName"})
                                                                   Pageable pageable) {
@@ -94,14 +112,14 @@ public class NurseController implements NurseControllerDocs {
     //Получить медсестру (для медсестры. Полная информация)
     @Override
     @GetMapping("/my-account")
-//    @CheckPermission(roles = {NURSE})
+    //    @CheckPermission(roles = {NURSE})
     public ResponseEntity<NurseFullDto> getFullByToken() {
         return ok(nurseService.getByToken());
     }
 
     @Override
     @GetMapping("/{id}/full")
-//    @CheckPermission(roles = {SUPER_ADMIN, NURSE})
+    //    @CheckPermission(roles = {ADMIN, NURSE})
     public ResponseEntity<NurseFullDto> getFullById(@PathVariable long id) {
         return ok(nurseService.getFullById(id));
     }
@@ -109,16 +127,8 @@ public class NurseController implements NurseControllerDocs {
     //получить медсестру (для пациента. Расширенная информация)
     @Override
     @GetMapping("/{id}")
-//    @CheckPermission(roles = {SUPER_ADMIN, PATIENT})
+    //    @CheckPermission(roles = {ADMIN, PATIENT})
     public ResponseEntity<NurseExtendedDto> getExtendedById(@PathVariable long id) {
         return ok(nurseService.getExtendedById(id));
-    }
-
-    @Override
-    @DeleteMapping("/{id}")
-//    @CheckPermission(roles = {SUPER_ADMIN, NURSE})
-    public ResponseEntity<Void> delete(@PathVariable long id) {
-        nurseService.deleteById(id);
-        return ok().build();
     }
 }

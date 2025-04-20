@@ -12,5 +12,6 @@ import static org.mapstruct.ReportingPolicy.IGNORE;
 public interface BidMapper {
 
     @Mapping(target = "status", constant = "SEARCHING")
+    @Mapping(target = "address", ignore = true)
     Bid toBid(BidParams params);
 }

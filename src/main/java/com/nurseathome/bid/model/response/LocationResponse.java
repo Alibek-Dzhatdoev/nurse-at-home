@@ -7,7 +7,9 @@ import static lombok.AccessLevel.PRIVATE;
 
 @Data
 @FieldDefaults(level = PRIVATE)
-public class TokenIntrospectResponse {
+public class LocationResponse {
 
-    private boolean active;
+    Double longitude;
+
+    Double latitude;
 }

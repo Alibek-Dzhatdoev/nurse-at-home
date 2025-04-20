@@ -1,6 +1,6 @@
 package com.nurseathome.bid.service.impl;
 
-import com.nurseathome.bid.mapper.AddressMapper;
+import com.nurseathome.bid.client.OauthClient;
 import com.nurseathome.bid.mapper.PatientMapper;
 import com.nurseathome.bid.model.dto.patient.PatientExtendedDto;
 import com.nurseathome.bid.model.dto.patient.PatientFullDto;
@@ -13,8 +13,8 @@ import com.nurseathome.bid.model.params.PatientParams;
 import com.nurseathome.bid.model.params.update.PatientUpdateParams;
 import com.nurseathome.bid.repository.BlacklistRepository;
 import com.nurseathome.bid.repository.NurseRepository;
-import com.nurseathome.bid.repository.PatientAddressRepository;
 import com.nurseathome.bid.repository.PatientRepository;
+import com.nurseathome.bid.repository.address.PatientAddressRepository;
 import com.nurseathome.bid.service.AddressService;
 import com.nurseathome.bid.service.PatientService;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +28,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.nurseathome.bid.model.enums.Initiator.NURSE;
-import static com.nurseathome.bid.utils.SecurityContextUtils.getUserIdFromToken;
+import static com.nurseathome.bid.model.enums.Roles.PATIENT;
+import static com.nurseathome.bid.utils.JwtUtils.getCurrentUserEmail;
+import static com.nurseathome.bid.utils.JwtUtils.getSsoUserIdFromToken;
 import static java.util.List.of;
 import static java.util.Objects.isNull;
 import static lombok.AccessLevel.PRIVATE;
@@ -42,7 +45,8 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class PatientServiceImpl implements PatientService {
 
     PatientMapper patientMapper;
-    AddressMapper addressMapper;
+
+    OauthClient oauthClient;
 
     AddressService addressService;
     NurseRepository nurseRepository;
@@ -54,10 +58,14 @@ public class PatientServiceImpl implements PatientService {
     @Override
     @Transactional
     public PatientFullDto create(PatientParams params) {
-        val patient = patientMapper.toPatient(params, getUserIdFromToken());
         val address = addressService.checkAddressAndReturn(params.getAddress());
-        patient.setAddresses(of(new PatientAddress(patient, address, true)));
-        return patientMapper.toFullDto(patientRepository.save(patient));
+        val patient = patientMapper.toPatient(params, getSsoUserIdFromToken());
+        patient.setEmail(getCurrentUserEmail())
+                .setAddresses(of(new PatientAddress(patient, address, true)))
+                .setIsActive(true);
+        val newPatient = patientRepository.save(patient);
+        oauthClient.endRegistration(PATIENT);
+        return patientMapper.toFullDto(newPatient);
     }
 
     @Override
@@ -70,7 +78,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     @Transactional(readOnly = true)
     public PatientFullDto getFullByToken() {
-        return patientRepository.findByUserId(getUserIdFromToken())
+        return patientRepository.findBySsoUserId(getSsoUserIdFromToken())
                 .map(patientMapper::toFullDto)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Не удалось найти пациента"));
     }
@@ -79,12 +87,7 @@ public class PatientServiceImpl implements PatientService {
     @Transactional(readOnly = true)
     public PatientExtendedDto getExtendedById(long id) {
         return patientRepository.findByIdFetchAddresses(id)
-                .map(patient -> {
-                    val dto = patientMapper.toExtendedDto(patient);
-                    dto.setAddress(addressMapper.toDto(patient.getAddresses().stream()
-                            .filter(PatientAddress::getIsPrimary).findAny().orElse(null)));
-                    return dto;
-                })
+                .map(patientMapper::toExtendedDto)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Не удалось найти пациента"));
     }
 
@@ -105,11 +108,13 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    @Transactional
     public PatientFullDto updateByToken(PatientUpdateParams params) {
-        return patientRepository.findByUserId(getUserIdFromToken())
+        return patientRepository.findBySsoUserId(getSsoUserIdFromToken())
                 .map(patient -> patientMapper.updatePatient(patient, params))
                 .map(patient -> patientMapper.toFullDto(updateAddressIfNeed(params, patient)))
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Не удалось найти пациента и обновить данные"));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND,
+                        "Не удалось найти пациента и обновить данные"));
     }
 
     private Patient updateAddressIfNeed(PatientUpdateParams params, Patient patient) {
@@ -121,10 +126,7 @@ public class PatientServiceImpl implements PatientService {
             val address = addressService.checkAddressAndReturn(params.getAddress());
             val patientAddress = patientAddressRepository
                     .findByPatientIdAndAddressId(patient.getId(), address.getId())
-                    .map(addr -> {
-                        addr.setIsPrimary(true);
-                        return addr;
-                    })
+                    .map(addr -> addr.setIsPrimary(true))
                     .orElse(patientAddressRepository.save(new PatientAddress(patient, address, true)));
             patient.getAddresses().add(patientAddress);
             patientRepository.save(patient);
@@ -133,18 +135,14 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    @Transactional
-    public void deleteById(long id) {
-        patientRepository.findById(id).ifPresent(patient -> {
-            patient.setIsActive(false);
-            patientRepository.save(patient);
-        });
+    public void setIsActive(UUID ssoUserId, boolean isActive) {
+        patientRepository.setIsActive(getSsoUserIdFromToken(), isActive);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<PatientThinDto> getBlackList(Pageable pageable) {
-        List<Long> patientIds = nurseRepository.findByUserId(getUserIdFromToken())
+        List<Long> patientIds = nurseRepository.findBySsoUserId(getSsoUserIdFromToken())
                 .map(nurse -> nurse.getBlackList().stream()
                         .filter(b -> b.getInitiator() == NURSE)
                         .map(NursePatientBlacklist::getPatientId)
@@ -156,17 +154,18 @@ public class PatientServiceImpl implements PatientService {
     @Override
     @Transactional
     public void addToBlacklist(long patientId) {
-        val nurseId = nurseRepository.findByUserId(getUserIdFromToken())
+        val nurseId = nurseRepository.findBySsoUserId(getSsoUserIdFromToken())
                 .map(Nurse::getId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Медсестра не найдена"));
         blacklistRepository.findBlackListNurse(nurseId, patientId)
-                .orElseGet(() -> blacklistRepository.save(new NursePatientBlacklist(nurseId, patientId, NURSE)));
+                .orElseGet(
+                        () -> blacklistRepository.save(new NursePatientBlacklist(nurseId, patientId, NURSE)));
     }
 
     //TODO
     @Override
     public Page<PatientThinDto> removeFromBlacklist(long id, Pageable pageable) {
-        return nurseRepository.findByUserId(getUserIdFromToken())
+        return nurseRepository.findBySsoUserId(getSsoUserIdFromToken())
                 .map(nurse -> {
                     nurse.setBlackList(nurse.getBlackList().stream()
                             .filter(black -> black.getInitiator() == NURSE)

@@ -20,9 +20,6 @@ public class PatientThinDto {
     @Schema(description = "Фамилия пациента")
     String lastname;
 
-    @Schema(description = "Номер телефона пациента")
-    String mobilePhone;
-
     @Schema(description = "Активна ли учетная запись пациента")
     Boolean isActive;
 }

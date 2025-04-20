@@ -21,19 +21,17 @@ public class ReviewController {
 
     //оставить отзыв на полученную услугу (для пациентов)
     @PostMapping
-//    @CheckPermission(roles = PATIENT)
+    //    @CheckPermission(roles = PATIENT)
     public ResponseEntity<Void> createOrUpdate(@RequestBody @Valid ReviewParams params) {
         reviewService.createOrUpdate(params);
         return ok().build();
     }
 
-
     //удалить свой отзыв
     @DeleteMapping("/{id}")
-//    @CheckPermission(roles = {PATIENT, SUPER_ADMIN})
+    //    @CheckPermission(roles = {PATIENT, ADMIN})
     public ResponseEntity<Void> deleteById(@PathVariable long id) {
         reviewService.deleteById(id);
         return ok().build();
     }
-
 }

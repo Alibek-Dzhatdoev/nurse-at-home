@@ -3,22 +3,22 @@ spring:
     name: nurse-at-home
   cloud:
     config:
-#      uri: http://config-service.prod:80
+      uri: https://config-service.prod:80
       enabled: false
   profiles:
     active: local
 
 
 server:
-  port: 8080
+  port: 8081
   forward-headers-strategy: framework
   error:
     include-message: always
-#  servlet:
-#    context-path: /nurse-at-home
+  servlet:
+    context-path: /nurse-at-home
 
 management:
   endpoints:
     web:
       exposure:
-        include: refresh, health
+        include: refresh, health, info

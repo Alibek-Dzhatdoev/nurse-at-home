@@ -8,7 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 
-import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -23,7 +22,7 @@ public class Review {
     @GeneratedValue(strategy = IDENTITY)
     Long id;
 
-    @OneToOne(fetch = LAZY)
+    @OneToOne
     Bid bid;
 
     Integer rate;

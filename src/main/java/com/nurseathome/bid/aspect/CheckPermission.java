@@ -1,6 +1,7 @@
 package com.nurseathome.bid.aspect;
 
-import com.nurseathome.bid.model.enums.Role;
+import com.nurseathome.bid.model.enums.Privilege;
+import com.nurseathome.bid.model.enums.Roles;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -15,5 +16,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({METHOD, TYPE})
 public @interface CheckPermission {
 
-    Role[] roles();
+    Roles[] roles() default {};
+
+    Privilege[] privileges() default {};
 }

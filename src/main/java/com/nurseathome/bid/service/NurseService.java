@@ -8,6 +8,8 @@ import com.nurseathome.bid.model.params.update.NurseUpdateParams;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.UUID;
+
 public interface NurseService {
 
     NurseFullDto create(NurseParams params);
@@ -22,7 +24,9 @@ public interface NurseService {
 
     NurseExtendedDto getExtendedById(long id);
 
-    void deleteById(long id);
+    void setIsAvailable(boolean isAvailable);
+
+    void setIsActive(UUID ssoUserId, boolean isActive);
 
     Page<NurseThinDto> getFromDoneBids(Pageable pageable);
 
@@ -31,5 +35,4 @@ public interface NurseService {
     void addNurseToBlacklist(long id);
 
     Page<NurseThinDto> removeNurseFromBlacklist(long id, Pageable pageable);
-
 }

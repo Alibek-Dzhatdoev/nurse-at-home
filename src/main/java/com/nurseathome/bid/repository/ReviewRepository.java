@@ -8,21 +8,19 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
+    @Query("""
+           SELECT review
+           FROM Review review
+           JOIN Bid bid ON review.bid.id = bid.id
+           WHERE bid.nurseId = :nurseId
+           """)
+    Page<Review> findAllByNurseId(long nurseId, Pageable pageable);
 
     @Query("""
-           SELECT r
+           SELECT COUNT(r)
            FROM Review r
-           JOIN Bid b ON r.id = b.review.id
+           JOIN Bid b ON r.bid.id = b.id
            WHERE b.nurseId = :nurseId
            """)
-    Page<Review> findAllByNurseId(Long nurseId, Pageable pageable);
-
-    @Query("""
-       SELECT COUNT(r)
-       FROM Review r
-       JOIN Bid b ON r.id = b.review.id
-       WHERE b.nurseId = :nurseId
-       """)
     long countReviewsByNurseId(Long nurseId);
-
 }

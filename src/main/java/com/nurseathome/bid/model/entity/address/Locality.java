@@ -1,30 +1,28 @@
 package com.nurseathome.bid.model.entity.address;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
 
-@Entity
 @Getter
 @Setter
-@Table(name = "cities")
+@Entity
+@Accessors(chain = true)
+@Table(name = "localities")
 @FieldDefaults(level = PRIVATE)
-public class City {
+public class Locality {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     Long id;
 
     String name;
-
-    Long regionId;
-
-    @OneToMany
-    List<Street> streets;
 }

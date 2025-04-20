@@ -1,16 +1,18 @@
 package com.nurseathome.bid.service.impl;
 
 import com.nurseathome.bid.client.OauthClient;
+import com.nurseathome.bid.config.properties.ServiceClientProperties;
 import com.nurseathome.bid.model.request.TokenIntrospectRequest;
+import com.nurseathome.bid.model.request.TokenRequest;
 import com.nurseathome.bid.model.response.TokenIntrospectResponse;
 import com.nurseathome.bid.service.AuthService;
-import com.nurseathome.bid.config.properties.ServiceClientProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.val;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import static com.nurseathome.bid.utils.SecurityContextUtils.getAccessToken;
+import static com.nurseathome.bid.utils.JwtUtils.getAccessToken;
 import static java.lang.String.format;
 import static java.util.Base64.getEncoder;
 import static lombok.AccessLevel.PRIVATE;
@@ -25,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
     ServiceClientProperties serviceClientProperties;
 
     @Override
-    public void introspectOauthServiceClientToken(String token) {
+    public void introspectToken() {
         TokenIntrospectResponse introspectResponse = oauthClient.introspect(
                 new TokenIntrospectRequest(getAccessToken()), getServiceClientBasicAuthorization());
 
@@ -34,8 +36,15 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    @Override
+    public String getServiceAccessToken() {
+        val tokenResponse = oauthClient.getToken(new TokenRequest(), getServiceClientBasicAuthorization());
+        return tokenResponse.getTokenType() + " " + tokenResponse.getAccessToken();
+    }
+
     private String getServiceClientBasicAuthorization() {
-        byte[] basicAuth = format("%s:%s", serviceClientProperties.id(), serviceClientProperties.secret()).getBytes();
+        byte[] basicAuth = format("%s:%s", serviceClientProperties.id(),
+                serviceClientProperties.secret()).getBytes();
         return "Basic " + getEncoder().encodeToString(basicAuth);
     }
 }

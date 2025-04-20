@@ -32,16 +32,18 @@ public class ProcedureController {
 
     ProcedureService procedureService;
 
+    //TODO эндпоинт для изменения цены в регионе для определенной процедуры
+
     //добавить услугу
     @PostMapping
-//    @CheckPermission(roles = SUPER_ADMIN)
+    //    @CheckPermission(roles = ADMIN)
     public ResponseEntity<ProcedureDto> create(@RequestBody @Valid ProcedureParams params) {
         return status(CREATED).body(procedureService.create(params));
     }
 
     //удалить услугу
     @DeleteMapping("/{id}")
-//    @CheckPermission(roles = SUPER_ADMIN)
+    //    @CheckPermission(roles = ADMIN)
     public ResponseEntity<Void> delete(@PathVariable long id) {
         procedureService.deleteById(id);
         return ok().build();
@@ -49,9 +51,9 @@ public class ProcedureController {
 
     //обновить услугу
     @PatchMapping("/{id}")
-//    @CheckPermission(roles = SUPER_ADMIN)
+    //    @CheckPermission(roles = ADMIN)
     public ResponseEntity<ProcedureDto> update(@PathVariable long id,
-                                    @RequestBody ProcedureParams params) {
+                                               @RequestBody ProcedureParams params) {
         return ok(procedureService.update(id, params));
     }
 
@@ -63,7 +65,7 @@ public class ProcedureController {
 
     //получить страницу услуг (неактивных тоже)
     @GetMapping("/all")
-//    @CheckPermission(roles = SUPER_ADMIN)
+    //    @CheckPermission(roles = ADMIN)
     public ResponseEntity<Page<ProcedureThinDto>> getAllWithInactiveOnes(
             @And({
                     @Spec(path = "price", params = {"priceFrom", "priceTo"}, spec = Between.class),

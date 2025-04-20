@@ -31,91 +31,89 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public interface PatientControllerDocs {
 
     @Operation(summary = "Создание пациента (для пациента)",
-            description = "Метод создания нового пациента")
+               description = "Метод создания нового пациента")
     @ApiResponse(responseCode = "201", description = "Success",
-            content = @Content(
-                    mediaType = APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = PatientFullDto.class)))
+                 content = @Content(
+                         mediaType = APPLICATION_JSON_VALUE,
+                         schema = @Schema(implementation = PatientFullDto.class)))
     ResponseEntity<PatientFullDto> create(@RequestBody PatientParams params);
 
     //    @Hidden
     @Operation(summary = "Получить полную информацию пациента по id (для администратора или внутренней логики)",
-            description = "Метод для получения полной информации о пациенте (предназначен для администратора или внутренней логики)")
+               description = "Метод для получения полной информации о пациенте (предназначен для администратора или внутренней логики)")
     @ApiResponse(responseCode = "200", description = "Success",
-            content = @Content(
-                    mediaType = APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = PatientFullDto.class)))
-    ResponseEntity<PatientFullDto> getFullById(@Parameter(description = "ID пациента", example = "1") long id);
+                 content = @Content(
+                         mediaType = APPLICATION_JSON_VALUE,
+                         schema = @Schema(implementation = PatientFullDto.class)))
+    ResponseEntity<PatientFullDto> getFullById(
+            @Parameter(description = "ID пациента", example = "1") long id);
 
     @Operation(summary = "Получить полную информацию пациента по токену (для пациента)",
-            description = "Метод для получения полной информации о пациенте (предназначен для пациента)")
+               description = "Метод для получения полной информации о пациенте (предназначен для пациента)")
     @ApiResponse(responseCode = "200", description = "Success",
-            content = @Content(
-                    mediaType = APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = PatientFullDto.class)))
+                 content = @Content(
+                         mediaType = APPLICATION_JSON_VALUE,
+                         schema = @Schema(implementation = PatientFullDto.class)))
     ResponseEntity<PatientFullDto> getFullByToken();
 
     @Operation(
             summary = "Получить расширенную информацию о пациенте (для медсестры)",
             description = "Метод для получения подробной информации о пациенте (предназначен для медсестер)")
     @ApiResponse(responseCode = "200", description = "Success",
-            content = @Content(
-                    mediaType = APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = PatientExtendedDto.class)))
-    ResponseEntity<PatientExtendedDto> getExtendedById(@Parameter(description = "ID пациента", example = "1") long id);
+                 content = @Content(
+                         mediaType = APPLICATION_JSON_VALUE,
+                         schema = @Schema(implementation = PatientExtendedDto.class)))
+    ResponseEntity<PatientExtendedDto> getExtendedById(
+            @Parameter(description = "ID пациента", example = "1") long id);
 
     @Operation(summary = "Получить страницу пациентов (для админа)",
-            description = "Метод для получения списка пациентов (для админа)")
+               description = "Метод для получения списка пациентов (для админа)")
     @ApiResponse(responseCode = "200", description = "Success",
-            content = @Content(
-                    mediaType = APPLICATION_JSON_VALUE,
-                    array = @ArraySchema(schema = @Schema(implementation = PatientThinDto.class))))
-    ResponseEntity<Page<PatientThinDto>> getAll(@Parameter(description = "Спецификация для фильтрации пациентов", example = PATIENT_SPEC_EXAMPLE)
-                                                Specification<Patient> patientSpec,
-                                                @ParameterObject Pageable pageable);
+                 content = @Content(
+                         mediaType = APPLICATION_JSON_VALUE,
+                         array = @ArraySchema(schema = @Schema(implementation = PatientThinDto.class))))
+    ResponseEntity<Page<PatientThinDto>> getAll(
+            @Parameter(description = "Спецификация для фильтрации пациентов", example = PATIENT_SPEC_EXAMPLE)
+            Specification<Patient> patientSpec,
+            @ParameterObject Pageable pageable);
 
     @Operation(summary = "Обновить информацию о пациенте (для админа)",
-            description = "Метод для обновления информации о пациенте (предназначен для админа)")
+               description = "Метод для обновления информации о пациенте (предназначен для админа)")
     @ApiResponse(responseCode = "200", description = "Success",
-            content = @Content(
-                    mediaType = APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = PatientFullDto.class)))
+                 content = @Content(
+                         mediaType = APPLICATION_JSON_VALUE,
+                         schema = @Schema(implementation = PatientFullDto.class)))
     ResponseEntity<PatientFullDto> updateById(@Parameter(description = "ID пациента", example = "1") long id,
                                               @RequestBody PatientUpdateParams params);
 
     @Operation(summary = "Обновить информацию о пациенте (для пациента)",
-            description = "Метод для обновления информации о пациенте (предназначен для пациентов)")
+               description = "Метод для обновления информации о пациенте (предназначен для пациентов)")
     @ApiResponse(responseCode = "200", description = "Success",
-            content = @Content(
-                    mediaType = APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = PatientFullDto.class)))
+                 content = @Content(
+                         mediaType = APPLICATION_JSON_VALUE,
+                         schema = @Schema(implementation = PatientFullDto.class)))
     ResponseEntity<PatientFullDto> updateByToken(@RequestBody PatientUpdateParams params);
 
-    @Operation(summary = "Удалить пациента (но оставить запись в БД)",
-            description = "Метод помечает пациента как неактивного")
-    @ApiResponse(responseCode = "200", description = "Success",
-            content = @Content)
-    ResponseEntity<Void> deleteById(@Parameter(description = "ID пациента", example = "1") long id);
-
     @Operation(summary = "Получить черный список пациентов (для медсестры)",
-            description = "Метод для получения черного списка пациентов")
+               description = "Метод для получения черного списка пациентов")
     @ApiResponse(responseCode = "200", description = "Success",
-            content = @Content(
-                    mediaType = APPLICATION_JSON_VALUE,
-                    array = @ArraySchema(schema = @Schema(implementation = PatientThinDto.class))))
+                 content = @Content(
+                         mediaType = APPLICATION_JSON_VALUE,
+                         array = @ArraySchema(schema = @Schema(implementation = PatientThinDto.class))))
     ResponseEntity<Page<PatientThinDto>> getBlacklist(@ParameterObject Pageable pageable);
 
     @Operation(summary = "Добавить пациента в черный список (для медсестры)",
-            description = "Метод для добавления пациента в черный список, чтобы не видеть заявки от него")
+               description = "Метод для добавления пациента в черный список, чтобы не видеть заявки от него")
     @ApiResponse(responseCode = "200", description = "Success", content = @Content)
     ResponseEntity<Void> addToBlacklist(@Parameter(description = "ID пациента", example = "1") long id);
 
     @Operation(summary = "Удалить пациента из черного списка (для медсестры)",
-            description = "Метод для удаления пациента из ЧС, чтобы снова видеть его заявки")
+               description = "Метод для удаления пациента из ЧС, чтобы снова видеть его заявки")
     @ApiResponse(responseCode = "200", description = "Success",
-            content = @Content(
-                    mediaType = APPLICATION_JSON_VALUE,
-                    array = @ArraySchema(schema = @Schema(implementation = PatientThinDto.class))))
-    ResponseEntity<Page<PatientThinDto>> removeFromBlacklist(@Parameter(description = "ID пациента", example = "1") long id,
-                                                             @ParameterObject Pageable pageable);
+                 content = @Content(
+                         mediaType = APPLICATION_JSON_VALUE,
+                         array = @ArraySchema(schema = @Schema(implementation = PatientThinDto.class))))
+    ResponseEntity<Page<PatientThinDto>> removeFromBlacklist(
+            @Parameter(description = "ID пациента", example = "1") long id,
+            @ParameterObject Pageable pageable);
 }

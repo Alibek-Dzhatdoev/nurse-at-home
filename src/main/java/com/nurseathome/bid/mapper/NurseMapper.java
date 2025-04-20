@@ -18,7 +18,8 @@ import static org.mapstruct.NullValuePropertyMappingStrategy.IGNORE;
         uses = AddressMapper.class)
 public interface NurseMapper {
 
-    @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "ssoUserId", source = "userId")
+    @Mapping(target = "address", ignore = true)
     Nurse toNurse(NurseParams params, UUID userId);
 
     NurseFullDto toFullDto(Nurse nurse);
@@ -27,6 +28,7 @@ public interface NurseMapper {
 
     NurseThinDto toThinDto(Nurse nurse);
 
+    @Mapping(target = "address", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = IGNORE)
     Nurse update(@MappingTarget Nurse nurse, NurseUpdateParams params);
 }

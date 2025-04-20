@@ -9,7 +9,6 @@ import com.nurseathome.bid.repository.ProcedureRepository;
 import com.nurseathome.bid.service.ProcedureService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.val;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -68,8 +67,9 @@ public class ProcedureServiceImpl implements ProcedureService {
 
     @Override
     public Page<ProcedureThinDto> getAll(Specification<Procedure> spec, Pageable pageable) {
-        val newSpec = spec
-                .and((root, query, builder) -> builder.isTrue(root.get("isActive")));
+        Specification<Procedure> newSpec = spec == null
+                ? (root, query, builder) -> builder.isTrue(root.get("isActive"))
+                : spec.and((root, query, builder) -> builder.isTrue(root.get("isActive")));
 
         return getAllWithInactiveOnes(newSpec, pageable);
     }

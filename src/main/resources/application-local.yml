@@ -1,10 +1,10 @@
 eureka:
   client:
-    enabled: false
+    enabled: true
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://localhost:8761/eureka/eureka
   instance:
     prefer-ip-address: true
 
@@ -12,9 +12,14 @@ application:
   security:
     service-client:
       id: service-client
-      secret: roL5TnZrTmA2bb1B
+      #      secret: roL5TnZrTmA2bb1B
+      secret: service-client
 
 spring:
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5433/postgres?currentSchema=nurse_at_home

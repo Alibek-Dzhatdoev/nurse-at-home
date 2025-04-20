@@ -1,7 +1,6 @@
 package com.nurseathome.bid.service.impl;
 
 import com.nurseathome.bid.mapper.ReviewMapper;
-import com.nurseathome.bid.model.entity.Bid;
 import com.nurseathome.bid.model.params.ReviewParams;
 import com.nurseathome.bid.repository.BidRepository;
 import com.nurseathome.bid.repository.NurseRepository;
@@ -32,25 +31,22 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public void createOrUpdate(ReviewParams params) {
-        val bidOptional = bidRepository.findByIdAndStatusIsDone(params.getBidId());
-        if (bidOptional.isPresent()) {
-            Bid bid = bidOptional.get();
-            nurseRepository.findById(bid.getNurseId())
-                    .ifPresent(nurse -> {
-                        val reviewCount = reviewRepository.countReviewsByNurseId(nurse.getId());
-                        val allPoints = nurse.getRating() * reviewCount;
-                        if (isNull(bid.getReview()))
-                            nurse.setRating((allPoints + params.getRate()) / reviewCount + 1);
-                        else
-                            nurse.setRating((allPoints - bid.getReview().getRate() + params.getRate()) / reviewCount);
-                        nurseRepository.save(nurse);
-                        val review = reviewMapper.toReview(params);
-                        review.setBid(bid);
-                        reviewRepository.save(review);
-                    });
-        } else {
-            throw new ResponseStatusException(NOT_FOUND, "Указанная заявка еще не выполнена или не существует");
-        }
+        val bid = bidRepository.findByIdAndStatusIsDone(params.getBidId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        NOT_FOUND, "Указанная заявка еще не выполнена или не существует"));
+        nurseRepository.findById(bid.getNurseId())
+                .ifPresent(nurse -> {
+                    val reviewCount = reviewRepository.countReviewsByNurseId(nurse.getId());
+                    val allPoints = nurse.getRating() * reviewCount;
+                    if (isNull(bid.getReview()))
+                        nurse.setRating((allPoints + params.getRate()) / reviewCount + 1);
+                    else
+                        nurse.setRating((allPoints - bid.getReview().getRate() + params.getRate()) / reviewCount);
+                    nurseRepository.save(nurse);
+                    val review = reviewMapper.toReview(params);
+                    review.setBid(bid);
+                    reviewRepository.save(review);
+                });
     }
 
     @Override

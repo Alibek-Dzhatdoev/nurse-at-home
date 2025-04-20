@@ -1,5 +1,6 @@
 package com.nurseathome.bid.service.impl;
 
+import com.nurseathome.bid.client.OauthClient;
 import com.nurseathome.bid.mapper.NurseMapper;
 import com.nurseathome.bid.model.dto.nurse.NurseExtendedDto;
 import com.nurseathome.bid.model.dto.nurse.NurseFullDto;
@@ -27,12 +28,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import static com.nurseathome.bid.model.enums.Initiator.PATIENT;
-import static com.nurseathome.bid.utils.SecurityContextUtils.getUserIdFromToken;
+import static com.nurseathome.bid.model.enums.Roles.NURSE;
+import static com.nurseathome.bid.utils.JwtUtils.getSsoUserIdFromToken;
 import static lombok.AccessLevel.PRIVATE;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +44,8 @@ import static org.springframework.http.HttpStatus.*;
 public class NurseServiceImpl implements NurseService {
 
     NurseMapper nurseMapper;
+
+    OauthClient oauthClient;
 
     AddressService addressService;
 
@@ -51,11 +57,12 @@ public class NurseServiceImpl implements NurseService {
     @Override
     @Transactional
     public NurseFullDto create(NurseParams params) {
-        val nurse = nurseMapper.toNurse(params, getUserIdFromToken());
-        val address = addressService.checkAddressAndReturn(params.getAddress());
-        nurse.setAddress(address);
+        val nurse = nurseMapper.toNurse(params, getSsoUserIdFromToken());
+        nurse.setAddress(addressService.checkAddressAndReturn(params.getAddress()));
         nurse.setProcedures(checkProcedures(params.getProcedureIds()));
-        return nurseMapper.toFullDto(nurseRepository.save(nurse));
+        val newNurse = nurseRepository.save(nurse);
+        oauthClient.endRegistration(NURSE);
+        return nurseMapper.toFullDto(newNurse);
     }
 
     @Override
@@ -67,7 +74,7 @@ public class NurseServiceImpl implements NurseService {
     @Override
     @Transactional
     public NurseFullDto updateByToken(NurseUpdateParams params) {
-        return updateNurse(() -> nurseRepository.findByUserId(getUserIdFromToken()), params);
+        return updateNurse(() -> nurseRepository.findBySsoUserId(getSsoUserIdFromToken()), params);
     }
 
     private NurseFullDto updateNurse(Supplier<Optional<Nurse>> nurseSupplier, NurseUpdateParams params) {
@@ -85,14 +92,15 @@ public class NurseServiceImpl implements NurseService {
 
     private List<Procedure> checkProcedures(List<Long> procedureIds) {
         List<Procedure> procedures = procedureRepository.findAllById(procedureIds);
-        if (procedures.size() < procedureIds.size())
+        if (procedures.size() < procedureIds.size()) {
             throw new ResponseStatusException(BAD_REQUEST, "Укажите корректные ID процедур");
+        }
         return procedures;
     }
 
     @Override
     public NurseFullDto getByToken() {
-        return nurseRepository.findByUserId(getUserIdFromToken())
+        return nurseRepository.findBySsoUserId(getSsoUserIdFromToken())
                 .map(nurseMapper::toFullDto)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Не удалось найти медсестру"));
     }
@@ -111,20 +119,20 @@ public class NurseServiceImpl implements NurseService {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Не удалось найти медсестру"));
     }
 
-    //TODO
     @Override
-    public void deleteById(long id) {
-        throw new ResponseStatusException(NOT_IMPLEMENTED);
-//        nurseRepository.findById(id).ifPresent(nurse -> {
-//            nurse.setIsActive(false);
-//            nurseRepository.save(nurse);
-//        });
+    public void setIsAvailable(boolean isAvailable) {
+        nurseRepository.setIsAvailable(isAvailable, getSsoUserIdFromToken());
+    }
+
+    @Override
+    public void setIsActive(UUID ssoUserId, boolean isActive) {
+        nurseRepository.setIsActive(getSsoUserIdFromToken(), isActive);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<NurseThinDto> getFromDoneBids(Pageable pageable) {
-        return patientRepository.findByUserId(getUserIdFromToken())
+        return patientRepository.findBySsoUserId(getSsoUserIdFromToken())
                 .map(patient -> nurseRepository.findNursesByPatientIdAndBidIsDone(patient.getId(), pageable))
                 .map(page -> page.map(nurseMapper::toThinDto))
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Пациент не найден"));
@@ -133,7 +141,7 @@ public class NurseServiceImpl implements NurseService {
     @Override
     @Transactional(readOnly = true)
     public Page<NurseThinDto> getBlacklist(Pageable pageable) {
-        val nurseIds = patientRepository.findByUserId(getUserIdFromToken())
+        val nurseIds = patientRepository.findBySsoUserId(getSsoUserIdFromToken())
                 .map(patient -> patient.getBlackList().stream()
                         .filter(black -> black.getInitiator() == PATIENT)
                         .map(NursePatientBlacklist::getNurseId)
@@ -145,16 +153,17 @@ public class NurseServiceImpl implements NurseService {
     @Override
     @Transactional
     public void addNurseToBlacklist(long nurseId) {
-        val patientId = patientRepository.findByUserId(getUserIdFromToken())
+        val patientId = patientRepository.findBySsoUserId(getSsoUserIdFromToken())
                 .map(Patient::getId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Пациент не найден"));
         blacklistRepository.findBlackListNurse(patientId, nurseId)
-                .orElseGet(() -> blacklistRepository.save(new NursePatientBlacklist(patientId, nurseId, PATIENT)));
+                .orElseGet(() -> blacklistRepository.save(
+                        new NursePatientBlacklist(patientId, nurseId, PATIENT)));
     }
 
     @Override
     public Page<NurseThinDto> removeNurseFromBlacklist(long id, Pageable pageable) {
-        return patientRepository.findByUserId(getUserIdFromToken())
+        return patientRepository.findBySsoUserId(getSsoUserIdFromToken())
                 .map(patient -> {
                     patient.setBlackList(patient.getBlackList().stream()
                             .filter(black -> black.getInitiator() == PATIENT)

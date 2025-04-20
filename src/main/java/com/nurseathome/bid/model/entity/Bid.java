@@ -6,6 +6,7 @@ import com.nurseathome.bid.model.enums.TimeIntervals;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -14,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -22,6 +22,7 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @Setter
 @Table(name = "bids")
+@Accessors(chain = true)
 @FieldDefaults(level = PRIVATE)
 public class Bid {
 
@@ -50,6 +51,6 @@ public class Bid {
     @ManyToOne
     Address address;
 
-    @OneToOne(fetch = LAZY, mappedBy = "bid")
+    @OneToOne(mappedBy = "bid")
     Review review;
 }

@@ -18,13 +18,11 @@ import static org.mapstruct.NullValuePropertyMappingStrategy.IGNORE;
         uses = AddressMapper.class)
 public interface PatientMapper {
 
-    @Mapping(target = "isActive", constant = "true")
-    @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "ssoUserId", source = "userId")
     Patient toPatient(PatientParams params, UUID userId);
 
     PatientFullDto toFullDto(Patient patient);
 
-    @Mapping(target = "address", source = "addresses", qualifiedByName = "getPrimaryAddress")
     PatientExtendedDto toExtendedDto(Patient patient);
 
     PatientThinDto toThinDto(Patient patient);

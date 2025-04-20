@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.UUID;
+
 public interface PatientService {
 
     PatientFullDto create(PatientParams params);
@@ -26,12 +28,11 @@ public interface PatientService {
 
     PatientFullDto updateByToken(PatientUpdateParams params);
 
-    void deleteById(long id);
+    void setIsActive(UUID ssoUserId, boolean isActive);
 
     Page<PatientThinDto> getBlackList(Pageable pageable);
 
     void addToBlacklist(long id);
 
     Page<PatientThinDto> removeFromBlacklist(long id, Pageable pageable);
-
 }
